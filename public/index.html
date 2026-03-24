@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+  <title>thornlust</title>
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="thornlust" />
+  <link rel="apple-touch-icon" href="/appicon.png" />
+  <meta name="theme-color" content="#000000" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html { height: 100%; background: #000; }
+
+    body {
+      background: #000;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      max-width: 480px;
+      margin: 0 auto;
+      overflow: hidden;
+      position: fixed;
+      inset: 0;
+      width: 100%;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      padding-top: calc(10px + env(safe-area-inset-top));
+      border-bottom: 1px solid #1a1a1a;
+      background: #000;
+      gap: 10px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .back-btn { color: #fff; cursor: pointer; padding: 4px; display: flex; align-items: center; }
+
+    .header-avatar-wrap { position: relative; flex-shrink: 0; }
+
+    .header-avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%; object-fit: cover; display: block;
+    }
+
+    .online-dot {
+      width: 11px; height: 11px;
+      background: #22c55e; border-radius: 50%;
+      border: 2px solid #000;
+      position: absolute; bottom: 0; right: 0;
+    }
+
+    .header-info { flex: 1; min-width: 0; }
+    .header-name { font-size: 15px; font-weight: 600; line-height: 1.2; }
+    .header-status { font-size: 12px; color: #aaa; }
+
+    .header-actions { display: flex; gap: 20px; align-items: center; }
+    .header-icon { color: #fff; cursor: pointer; display: flex; align-items: center; }
+
+    .ig-ring {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+      padding: 2px; cursor: pointer; flex-shrink: 0;
+    }
+    .ig-ring-inner { width: 100%; height: 100%; border-radius: 50%; background: #000; }
+
+    /* ── PROFILE CARD ── */
+    .profile-card {
+      display: flex; flex-direction: column;
+      align-items: center; padding: 32px 16px 24px; gap: 8px;
+    }
+    .profile-card-avatar-wrap { position: relative; }
+    .profile-card-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
+    .profile-card-dot {
+      width: 14px; height: 14px; background: #22c55e;
+      border-radius: 50%; border: 2.5px solid #000;
+      position: absolute; bottom: 2px; right: 2px;
+    }
+    .profile-card-name { font-size: 16px; font-weight: 700; margin-top: 4px; }
+    .profile-card-meta { font-size: 13px; color: #aaa; text-align: center; }
+    .profile-card-btn {
+      margin-top: 8px; padding: 8px 24px;
+      background: #1a1a1a; border: none; border-radius: 10px;
+      color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+
+    /* ── MESSAGES ── */
+    .messages-area {
+      flex: 1; min-height: 0;
+      overflow-y: auto; overflow-x: hidden;
+      padding: 8px 12px;
+      display: flex; flex-direction: column;
+      justify-content: flex-end;
+      gap: 3px;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+    .messages-area::-webkit-scrollbar { width: 0; }
+
+    .msg-row { display: flex; align-items: flex-end; gap: 6px; }
+    .msg-row.sent { flex-direction: row-reverse; }
+
+    .msg-avatar {
+      width: 26px; height: 26px; border-radius: 50%;
+      object-fit: cover; flex-shrink: 0; margin-bottom: 2px;
+    }
+    .msg-avatar.hidden { visibility: hidden; }
+
+    .bubble {
+      max-width: 72%; padding: 9px 13px;
+      border-radius: 22px; font-size: 14.5px;
+      line-height: 1.45; word-wrap: break-word;
+    }
+    .bubble.received {
+      background: #1e1e1e; color: #fff;
+      border-bottom-left-radius: 6px;
+    }
+    .bubble.sent {
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      color: #fff; border-bottom-right-radius: 6px;
+    }
+
+    .typing-bubble {
+      display: flex; align-items: center;
+      gap: 4px; padding: 10px 14px;
+    }
+    .typing-dot {
+      width: 7px; height: 7px; background: #666;
+      border-radius: 50%;
+      animation: typingBounce 1.2s infinite ease-in-out;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingBounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+      40% { transform: translateY(-5px); opacity: 1; }
+    }
+
+    /* ── INPUT BAR ── */
+    .input-bar {
+      display: flex; align-items: center;
+      padding: 6px 10px;
+      padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+      gap: 10px; background: #000; flex-shrink: 0;
+    }
+
+    .input-camera {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+      border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; cursor: pointer; flex-shrink: 0;
+    }
+
+    .input-wrap {
+      flex: 1; display: flex; align-items: center;
+      background: #1a1a1a; border-radius: 22px;
+      padding: 0 6px 0 14px; gap: 2px; min-height: 38px;
+    }
+
+    #msg-input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: #fff; font-size: 15px; padding: 8px 0;
+      resize: none; font-family: inherit; line-height: 1.4; max-height: 120px;
+    }
+    #msg-input::placeholder { color: #555; }
+
+    .input-icon {
+      cursor: pointer; color: #fff;
+      padding: 6px 4px; flex-shrink: 0;
+      display: flex; align-items: center;
+    }
+
+    .send-btn {
+      cursor: pointer; padding: 6px 4px;
+      flex-shrink: 0; display: none; align-items: center;
+    }
+    .send-btn.visible { display: flex; }
+
+    .timestamp-row {
+      text-align: center; font-size: 11px;
+      color: #555; margin: 6px 0 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <span class="back-btn" tabindex="-1" id="new-session-btn">
+      <!-- back chevron -->
+      <svg width="12" height="21" viewBox="0 0 12 21" fill="none">
+        <path d="M11 1L1 10.5L11 20" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+    <div class="header-avatar-wrap">
+      <img class="header-avatar" src="/avatar.jpeg" alt="thornlust" />
+      <div class="online-dot"></div>
+    </div>
+    <div class="header-info">
+      <div class="header-name">thornlust</div>
+      <div class="header-status">Active now</div>
+    </div>
+    <div class="header-actions">
+      <!-- phone -->
+      <span class="header-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <!-- video / stories ring -->
+      <div class="ig-ring"><div class="ig-ring-inner"></div></div>
+    </div>
+  </div>
+
+  <!-- MESSAGES -->
+  <div class="messages-area" id="messages">
+    <div class="profile-card" id="profile-card">
+      <div class="profile-card-avatar-wrap">
+        <img class="profile-card-avatar" src="/avatar.jpeg" alt="thornlust" />
+        <div class="profile-card-dot"></div>
+      </div>
+      <div class="profile-card-name">thornlust</div>
+      <div class="profile-card-meta">20K followers · 53 posts<br>Instagram</div>
+      <button class="profile-card-btn">View profile</button>
+    </div>
+  </div>
+
+  <!-- INPUT BAR -->
+  <div class="input-bar">
+    <!-- camera gradient button -->
+    <div class="input-camera" tabindex="-1">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="12" cy="13" r="4" stroke="white" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <div class="input-wrap">
+      <form id="msg-form" style="flex:1;display:flex;" onsubmit="return false;">
+      <textarea id="msg-input" rows="1" placeholder="Message..."
+        autocomplete="off" autocorrect="off" autocapitalize="sentences"
+        spellcheck="false" enterkeyhint="send" style="flex:1;"></textarea>
+      </form>
+
+      <!-- mic -->
+      <span class="input-icon" id="mic-btn" tabindex="-1">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <rect x="9" y="2" width="6" height="12" rx="3" stroke="white" stroke-width="1.8"/>
+          <path d="M5 10a7 7 0 0014 0" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="12" y1="19" x2="12" y2="23" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="9" y1="23" x2="15" y2="23" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </span>
+
+      <!-- image -->
+      <span class="input-icon" id="img-btn" tabindex="-1">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="3" width="18" height="18" rx="3" stroke="white" stroke-width="1.8"/>
+          <circle cx="8.5" cy="8.5" r="1.5" fill="white"/>
+          <path d="M21 15l-5-5L5 21" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+
+      <!-- sticker -->
+      <span class="input-icon" id="sticker-btn" tabindex="-1">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.8"/>
+          <path d="M8.5 14.5s1 2 3.5 2 3.5-2 3.5-2" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="9" cy="10" r="1.2" fill="white"/>
+          <circle cx="15" cy="10" r="1.2" fill="white"/>
+        </svg>
+      </span>
+
+      <!-- plus -->
+      <span class="input-icon" id="plus-btn" tabindex="-1">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.8"/>
+          <line x1="12" y1="8" x2="12" y2="16" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="8" y1="12" x2="16" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </span>
+
+      <!-- send -->
+      <span class="send-btn" id="send-btn" tabindex="-1">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M22 2L11 13" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </div>
+  </div>
+
+<script>
+  const messagesEl = document.getElementById('messages');
+  const input = document.getElementById('msg-input');
+  const sendBtn = document.getElementById('send-btn');
+  const micBtn = document.getElementById('mic-btn');
+  const imgBtn = document.getElementById('img-btn');
+  const stickerBtn = document.getElementById('sticker-btn');
+  const plusBtn = document.getElementById('plus-btn');
+
+  let history = [];
+  let sessionMsgs = [];
+  let isTyping = false;
+  let lastSender = null;
+
+  // ── Save history to server ──
+  function saveHistory() {
+    fetch('/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: history })
+    }).catch(() => {});
+  }
+
+  // ── Keyboard / viewport handling ──
+  const inputBar = document.querySelector('.input-bar');
+
+  function applyViewport() {
+    if (!window.visualViewport) return;
+    const vv = window.visualViewport;
+    const keyboardUp = vv.height < window.innerHeight * 0.8;
+    document.body.style.height = vv.height + 'px';
+    document.body.style.top = vv.offsetTop + 'px';
+    // remove bottom padding when keyboard is up so bar sits flush
+    inputBar.style.paddingBottom = keyboardUp ? '2px' : '';
+    scrollBottom();
+  }
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', applyViewport);
+    window.visualViewport.addEventListener('scroll', applyViewport);
+    applyViewport();
+  }
+
+  // Keep keyboard open — iOS blurs on value clear, so we prevent default blur
+  input.addEventListener('blur', (e) => {
+    if (isTyping || input.dataset.keepFocus === 'true') {
+      e.preventDefault();
+      setTimeout(() => input.focus(), 10);
+    }
+  });
+
+  function scrollBottom() {
+    requestAnimationFrame(() => {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    });
+  }
+
+  function appendMessage(role, text) {
+    const isSent = role === 'user';
+    lastSender = role;
+
+    const row = document.createElement('div');
+    row.className = `msg-row ${isSent ? 'sent' : 'received'}`;
+
+    if (!isSent) {
+      const av = document.createElement('img');
+      av.className = 'msg-avatar';
+      av.src = '/avatar.jpeg';
+      row.appendChild(av);
+    }
+
+    const bubble = document.createElement('div');
+    bubble.className = `bubble ${isSent ? 'sent' : 'received'}`;
+    bubble.textContent = text;
+    row.appendChild(bubble);
+
+    messagesEl.appendChild(row);
+    scrollBottom();
+    return bubble;
+  }
+
+  function showTyping() {
+    removeTyping();
+    const row = document.createElement('div');
+    row.className = 'msg-row received';
+    row.id = 'typing-row';
+
+    const av = document.createElement('img');
+    av.className = 'msg-avatar';
+    av.src = '/avatar.jpeg';
+    row.appendChild(av);
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble received typing-bubble';
+    for (let i = 0; i < 3; i++) {
+      const d = document.createElement('div');
+      d.className = 'typing-dot';
+      bubble.appendChild(d);
+    }
+    row.appendChild(bubble);
+    messagesEl.appendChild(row);
+    scrollBottom();
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('typing-row');
+    if (t) t.remove();
+  }
+
+  // Toggle icons vs send button
+  function updateInputIcons() {
+    const hasText = input.value.trim().length > 0;
+    sendBtn.classList.toggle('visible', hasText);
+    micBtn.style.display    = hasText ? 'none' : 'flex';
+    imgBtn.style.display    = hasText ? 'none' : 'flex';
+    stickerBtn.style.display = hasText ? 'none' : 'flex';
+    plusBtn.style.display   = hasText ? 'none' : 'flex';
+  }
+
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+    updateInputIcons();
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  sendBtn.addEventListener('click', () => sendMessage());
+  document.getElementById('msg-form').addEventListener('submit', () => sendMessage());
+
+  async function sendMessage() {
+    const text = input.value.trim();
+    if (!text || isTyping) return;
+
+    const card = document.getElementById('profile-card');
+    if (card) card.remove();
+
+    appendMessage('user', text);
+    const userMsg = { role: 'user', content: text };
+    history.push(userMsg);
+    sessionMsgs.push(userMsg);
+
+    input.dataset.keepFocus = 'true';
+    input.value = '';
+    input.style.height = 'auto';
+    updateInputIcons();
+    input.focus();
+
+    isTyping = true;
+    showTyping();
+
+    try {
+      const res = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: sessionMsgs })
+      });
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+      let bubble = null;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const lines = decoder.decode(value).split('\n').filter(l => l.startsWith('data: '));
+        for (const line of lines) {
+          const data = line.slice(6);
+          if (data === '[DONE]') break;
+          try {
+            const json = JSON.parse(data);
+            if (json.error) {
+              removeTyping();
+              if (!bubble) bubble = appendMessage('assistant', '');
+              bubble.textContent = json.error;
+              break;
+            }
+            if (json.final !== undefined) {
+              if (!bubble) { removeTyping(); bubble = appendMessage('assistant', json.final); }
+              else { bubble.textContent = json.final; scrollBottom(); }
+              fullText = json.final;
+            } else if (json.content) {
+              fullText += json.content;
+              const display = json.full !== undefined ? json.full : fullText;
+              if (!bubble) { removeTyping(); bubble = appendMessage('assistant', display); }
+              else { bubble.textContent = display; scrollBottom(); }
+            }
+          } catch (_) {}
+        }
+      }
+
+      if (fullText) {
+        const assistantMsg = { role: 'assistant', content: fullText };
+        history.push(assistantMsg);
+        sessionMsgs.push(assistantMsg);
+        saveHistory();
+      }
+
+    } catch (err) {
+      removeTyping();
+      appendMessage('assistant', 'Something went wrong. Make sure Ollama is running.');
+    }
+
+    isTyping = false;
+    input.dataset.keepFocus = 'false';
+  }
+
+  // ── New session (back button) ──
+  document.getElementById('new-session-btn').addEventListener('click', async () => {
+    if (!history.length) return;
+    if (!confirm('Start a new session? This chat will be saved to memories.')) return;
+    await fetch('/new-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: history })
+    });
+    history = [];
+    sessionMsgs = [];
+    lastSender = null;
+    messagesEl.innerHTML = '';
+    const card = document.createElement('div');
+    card.className = 'profile-card';
+    card.id = 'profile-card';
+    card.innerHTML = `
+      <div class="profile-card-avatar-wrap">
+        <img class="profile-card-avatar" src="/avatar.jpeg" alt="thornlust" />
+        <div class="profile-card-dot"></div>
+      </div>
+      <div class="profile-card-name">thornlust</div>
+      <div class="profile-card-meta">20K followers · 53 posts<br>Instagram</div>
+      <button class="profile-card-btn">View profile</button>`;
+    messagesEl.appendChild(card);
+  });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+# Private chat data
+chat_history.json
+memories.json
+sessions/
+
+# Personal images (add your own)
+me 1.jpeg
+me 2.jpeg
+me 3.jpeg
+instagram chat.jpeg
+instagram profile page.png
+
+# Screenshots
+IMG_*.png
+IMG_*.jpg
+
+# System
+__pycache__/
+*.pyc
+node_modules/
+null
