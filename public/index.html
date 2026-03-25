@@ -274,6 +274,74 @@
     }
     .cash-send-btn:disabled { opacity: 0.4; cursor: default; }
 
+    /* ── GIFT BUBBLE ── */
+    .bubble.gift {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-bottom-right-radius: 6px;
+      padding: 10px 14px;
+      display: flex; align-items: center; gap: 10px;
+      min-width: 160px;
+    }
+    .gift-icon-wrap {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .gift-bubble-text { display: flex; flex-direction: column; }
+    .gift-name { font-size: 15px; font-weight: 700; color: #fff; }
+    .gift-label { font-size: 11px; color: #666; margin-top: 1px; }
+
+    /* ── GIFT PANEL ── */
+    .gift-panel {
+      position: fixed; bottom: 0; left: 50%;
+      width: 100%; max-width: 480px;
+      background: #111; border-radius: 20px 20px 0 0;
+      padding: 16px 20px;
+      padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+      z-index: 101;
+      transform: translateX(-50%) translateY(100%);
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .gift-panel.open { transform: translateX(-50%) translateY(0); }
+    .gift-panel-handle {
+      width: 36px; height: 4px; background: #333;
+      border-radius: 2px; margin: 0 auto 18px;
+    }
+    .gift-panel-title {
+      font-size: 15px; font-weight: 600;
+      text-align: center; margin-bottom: 18px; color: #fff;
+    }
+    .gift-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 10px; margin-bottom: 18px;
+    }
+    .gift-item {
+      background: #1e1e1e; border: 1.5px solid #2a2a2a;
+      border-radius: 14px; padding: 12px 6px 10px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 7px; cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .gift-item:active, .gift-item.selected {
+      border-color: #a855f7; background: #1a0d2e;
+    }
+    .gift-item-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .gift-item-name { font-size: 10px; color: #aaa; text-align: center; font-weight: 500; }
+    .gift-send-btn {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+      border: none; border-radius: 14px;
+      color: #fff; font-size: 16px; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.3px;
+    }
+    .gift-send-btn:disabled { opacity: 0.4; cursor: default; }
+
     /* ── LENGTH PANEL ── */
     .length-panel {
       position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
@@ -429,12 +497,13 @@
         </svg>
       </span>
 
-      <!-- plus -->
+      <!-- gift -->
       <span class="input-icon" id="plus-btn" tabindex="-1">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.8"/>
-          <line x1="12" y1="8" x2="12" y2="16" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-          <line x1="8" y1="12" x2="16" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+          <rect x="3" y="10" width="18" height="11" rx="1" stroke="white" stroke-width="1.8"/>
+          <path d="M21 10H3V7h18v3z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/>
+          <line x1="12" y1="10" x2="12" y2="21" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M12 7c0-2-1.5-3.5-3-3.5S6 4.5 6 7M12 7c0-2 1.5-3.5 3-3.5S18 4.5 18 7" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
       </span>
 
@@ -485,6 +554,14 @@
   <button class="cash-send-btn" id="cash-send-btn" disabled>Send</button>
 </div>
 
+<!-- GIFT PANEL -->
+<div class="gift-panel" id="gift-panel">
+  <div class="gift-panel-handle"></div>
+  <div class="gift-panel-title">Send her a gift</div>
+  <div class="gift-grid" id="gift-grid"></div>
+  <button class="gift-send-btn" id="gift-send-btn" disabled>Send Gift</button>
+</div>
+
 <script>
   // ── DOM refs ──
   const messagesEl = document.getElementById('messages');
@@ -505,6 +582,7 @@
   function closeAllPanels() {
     cashPanel.classList.remove('open');
     lengthPanel.classList.remove('open');
+    giftPanel.classList.remove('open');
     sharedOverlay.classList.remove('open');
   }
   sharedOverlay.addEventListener('click', closeAllPanels);
@@ -810,6 +888,102 @@
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js');
+  }
+
+  // ── GIFT PANEL ──
+  const GIFTS = [
+    { name: 'Roses',      svg: '<path d="M12 3c-2 2-3.5 4.5-3.5 6.5a3.5 3.5 0 007 0C15.5 7.5 14 5 12 3z" stroke="white" stroke-width="1.8" fill="none"/><line x1="12" y1="12" x2="12" y2="20" stroke="white" stroke-width="1.8" stroke-linecap="round"/><path d="M9 17c0-1 1.3-1.5 3-1.5s3 .5 3 1.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>' },
+    { name: 'Bikini',     svg: '<path d="M7 5h4l1 5 1-5h4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M9 13v4a2 2 0 004 0v-4M11 13v4a2 2 0 004 0v-4" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/><path d="M9 13h6" stroke="white" stroke-width="1.8" stroke-linecap="round"/>' },
+    { name: 'Hat',        svg: '<ellipse cx="12" cy="17" rx="8" ry="2.5" stroke="white" stroke-width="1.8" fill="none"/><rect x="8" y="7" width="8" height="10" rx="2" stroke="white" stroke-width="1.8" fill="none"/>' },
+    { name: 'Sunglasses', svg: '<circle cx="7" cy="12" r="3.5" stroke="white" stroke-width="1.8" fill="none"/><circle cx="17" cy="12" r="3.5" stroke="white" stroke-width="1.8" fill="none"/><path d="M10.5 12h3" stroke="white" stroke-width="1.8" stroke-linecap="round"/><path d="M3.5 10.5L3 9M20.5 10.5L21 9" stroke="white" stroke-width="1.8" stroke-linecap="round"/>' },
+    { name: 'Jewelry',    svg: '<path d="M8 8l4-4 4 4" stroke="white" stroke-width="1.8" stroke-linejoin="round" fill="none"/><path d="M5 8h14" stroke="white" stroke-width="1.8" stroke-linecap="round"/><path d="M7 8l5 11 5-11" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M9 8l1.5 4 1.5-4 1.5 4 1.5-4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>' },
+    { name: 'Perfume',    svg: '<rect x="8" y="9" width="8" height="11" rx="2" stroke="white" stroke-width="1.8" fill="none"/><path d="M10 9V7h4v2" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="5" x2="12" y2="7" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="10" y1="13.5" x2="14" y2="13.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>' },
+    { name: 'Lingerie',   svg: '<path d="M8 5h8l-1 6H9L8 5z" stroke="white" stroke-width="1.8" fill="none" stroke-linejoin="round"/><path d="M9 11v7h6v-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M12 5v6" stroke="white" stroke-width="1.8" stroke-linecap="round"/>' },
+    { name: 'Dress',      svg: '<path d="M9 3h6l2 5-3 1.5V20H10V9.5L7 8l2-5z" stroke="white" stroke-width="1.8" fill="none" stroke-linejoin="round"/>' },
+  ];
+
+  const giftPanel   = document.getElementById('gift-panel');
+  const giftGrid    = document.getElementById('gift-grid');
+  const giftSendBtn = document.getElementById('gift-send-btn');
+  let selectedGift  = null;
+
+  GIFTS.forEach(gift => {
+    const item = document.createElement('div');
+    item.className = 'gift-item';
+    item.dataset.name = gift.name;
+    item.innerHTML = `
+      <div class="gift-item-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">${gift.svg}</svg>
+      </div>
+      <div class="gift-item-name">${gift.name}</div>`;
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.gift-item').forEach(el => el.classList.remove('selected'));
+      item.classList.add('selected');
+      selectedGift = gift.name;
+      giftSendBtn.disabled = false;
+    });
+    giftGrid.appendChild(item);
+  });
+
+  giftSendBtn.addEventListener('click', () => {
+    if (!selectedGift) return;
+    closeAllPanels();
+    sendGift(selectedGift);
+  });
+
+  plusBtn.addEventListener('click', () => {
+    selectedGift = null;
+    document.querySelectorAll('.gift-item').forEach(el => el.classList.remove('selected'));
+    giftSendBtn.disabled = true;
+    sharedOverlay.classList.add('open');
+    requestAnimationFrame(() => giftPanel.classList.add('open'));
+  });
+
+  function appendGiftBubble(giftName) {
+    const row = document.createElement('div');
+    row.className = 'msg-row sent';
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble gift';
+    bubble.innerHTML = `
+      <div class="gift-icon-wrap">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="10" width="18" height="11" rx="1" stroke="white" stroke-width="2"/>
+          <path d="M21 10H3V7h18v3z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+          <line x1="12" y1="10" x2="12" y2="21" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 7c0-2-1.5-3.5-3-3.5S6 4.5 6 7M12 7c0-2 1.5-3.5 3-3.5S18 4.5 18 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="gift-bubble-text">
+        <span class="gift-name">${giftName}</span>
+        <span class="gift-label">sent to thornlust</span>
+      </div>`;
+    row.appendChild(bubble);
+    messagesEl.appendChild(row);
+    scrollBottom();
+  }
+
+  async function sendGift(giftName) {
+    const card = document.getElementById('profile-card'); if (card) card.remove();
+    appendGiftBubble(giftName);
+    const giftMsg = { role: 'user', content: `[sent you a gift: ${giftName}]` };
+    history.push(giftMsg); sessionMsgs.push(giftMsg);
+    isTyping = true; showTyping();
+    try {
+      const res = await fetch('/chat', { method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: sessionMsgs, length_instruction: lengthLevels[currentLength].instruction })
+      });
+      const fullText = await readStream(res);
+      if (fullText) {
+        const msg = { role: 'assistant', content: fullText };
+        history.push(msg); sessionMsgs.push(msg); saveHistory();
+      }
+    } catch (err) {
+      removeTyping();
+      appendMessage('assistant', 'Something went wrong.');
+    }
+    isTyping = false;
+    input.dataset.keepFocus = 'false';
   }
 </script>
 </body>
