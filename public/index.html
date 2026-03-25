@@ -544,8 +544,8 @@
     .post-viewer-more { color: #fff; cursor: pointer; padding: 4px; display: flex; align-items: center; }
 
     /* image: full width, natural height */
-    .post-viewer-image { width: 100%; }
-    .post-viewer-image img { width: 100%; height: auto; display: block; }
+    .post-viewer-image { width: 100%; overflow: hidden; }
+    .post-viewer-image img { width: 100%; height: auto; display: block; transform-origin: center center; will-change: transform; }
 
     .post-viewer-actions { padding: 10px 14px 14px; }
     .post-viewer-icons { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
@@ -608,7 +608,7 @@
         <div class="profile-card-dot"></div>
       </div>
       <div class="profile-card-name">thornlust</div>
-      <div class="profile-card-meta">20K followers · 10 posts<br>You don't follow each other on Instagram</div>
+      <div class="profile-card-meta">20K followers · 37 posts<br>You don't follow each other on Instagram</div>
       <button class="profile-card-btn" onclick="document.getElementById('profile-screen').classList.add('open')">View profile</button>
     </div>
   </div>
@@ -728,7 +728,7 @@
       <img class="profile-big-avatar" src="/avatar.jpeg" alt="thornlust" />
     </div>
     <div class="profile-stats-row">
-      <div class="profile-stat"><span class="profile-stat-num">10</span><span class="profile-stat-label">posts</span></div>
+      <div class="profile-stat"><span class="profile-stat-num">37</span><span class="profile-stat-label">posts</span></div>
       <div class="profile-stat"><span class="profile-stat-num">20.4K</span><span class="profile-stat-label">followers</span></div>
       <div class="profile-stat"><span class="profile-stat-num">312</span><span class="profile-stat-label">following</span></div>
     </div>
@@ -736,7 +736,7 @@
 
   <div class="profile-bio-section">
     <div class="profile-display-name">Emmi</div>
-    <div class="profile-bio-text">model + content creator<br>collab inquiries in dms</div>
+    <div class="profile-bio-text">your dream girl :)</div>
   </div>
 
   <div class="profile-action-row">
@@ -798,7 +798,34 @@
     <div class="profile-post"><img src="/IMG_1965.jpeg"/></div>
     <div class="profile-post"><img src="/IMG_1966.jpeg"/></div>
     <div class="profile-post"><img src="/IMG_1967.jpeg"/></div>
-    <div class="profile-post"><img src="/avatar.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1972.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1973.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1974.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1975.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1976.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1977.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1978.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1979.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1980.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1981.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1982.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1983.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1984.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1985.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1986.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1987.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1988.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1989.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1990.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1991.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1992.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1993.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1994.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1995.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1996.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1997.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1998.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1999.jpeg"/></div>
   </div>
 
   <div class="profile-end-pad"></div>
@@ -1159,7 +1186,7 @@
         <div class="profile-card-dot"></div>
       </div>
       <div class="profile-card-name">thornlust</div>
-      <div class="profile-card-meta">20K followers · 10 posts<br>You don't follow each other on Instagram</div>
+      <div class="profile-card-meta">20K followers · 37 posts<br>You don't follow each other on Instagram</div>
       <button class="profile-card-btn" onclick="document.getElementById('profile-screen').classList.add('open')">View profile</button>`;
     messagesEl.appendChild(card);
   });
@@ -1183,6 +1210,69 @@
   const ICON_SHARE = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><line x1="22" y1="2" x2="11" y2="13" stroke="white" stroke-width="2" stroke-linecap="round"/><polygon points="22 2 15 22 11 13 2 9 22 2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`;
   const ICON_SAVE = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const ICON_MORE = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.5" fill="white"/><circle cx="12" cy="12" r="1.5" fill="white"/><circle cx="12" cy="19" r="1.5" fill="white"/></svg>`;
+
+  function addPinchZoom(imgEl) {
+    let scale = 1, startDist = 0, isPinching = false, lastTap = 0;
+
+    function getDist(t) { return Math.hypot(t[1].clientX - t[0].clientX, t[1].clientY - t[0].clientY); }
+    function setScale(s, ox, oy) {
+      imgEl.style.transformOrigin = `${ox}% ${oy}%`;
+      imgEl.style.transform = s === 1 ? '' : `scale(${s})`;
+    }
+    function snapBack() {
+      imgEl.style.transition = 'transform 0.25s ease';
+      setScale(1, 50, 50);
+      scale = 1;
+      setTimeout(() => { imgEl.style.transition = ''; }, 260);
+    }
+
+    imgEl.addEventListener('touchstart', e => {
+      if (e.touches.length === 2) {
+        isPinching = true;
+        startDist = getDist(e.touches);
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    imgEl.addEventListener('touchmove', e => {
+      if (isPinching && e.touches.length === 2) {
+        const newDist = getDist(e.touches);
+        const rect = imgEl.getBoundingClientRect();
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        const ox = ((midX - rect.left) / rect.width) * 100;
+        const oy = ((midY - rect.top) / rect.height) * 100;
+        scale = Math.max(1, Math.min(5, newDist / startDist));
+        setScale(scale, ox, oy);
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    imgEl.addEventListener('touchend', e => {
+      if (isPinching && e.touches.length < 2) {
+        isPinching = false;
+        snapBack();
+      }
+      // double-tap to zoom
+      if (!isPinching && e.changedTouches.length === 1) {
+        const now = Date.now();
+        if (now - lastTap < 280) {
+          if (scale > 1) {
+            snapBack();
+          } else {
+            const rect = imgEl.getBoundingClientRect();
+            const ox = ((e.changedTouches[0].clientX - rect.left) / rect.width) * 100;
+            const oy = ((e.changedTouches[0].clientY - rect.top) / rect.height) * 100;
+            imgEl.style.transition = 'transform 0.25s ease';
+            scale = 2;
+            setScale(2, ox, oy);
+            setTimeout(() => { imgEl.style.transition = ''; }, 260);
+          }
+        }
+        lastTap = now;
+      }
+    }, { passive: true });
+  }
 
   function buildFeed() {
     if (feedBuilt) return;
@@ -1213,6 +1303,7 @@
         </div>
       </div>`;
     }).join('');
+    postFeed.querySelectorAll('.post-viewer-image img').forEach(addPinchZoom);
   }
 
   function openPost(post) {
