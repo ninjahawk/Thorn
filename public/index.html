@@ -189,6 +189,146 @@
       text-align: center; font-size: 11px;
       color: #555; margin: 6px 0 2px;
     }
+
+    /* ── CASH BUBBLE ── */
+    .bubble.cash {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-bottom-right-radius: 6px;
+      padding: 10px 14px;
+      display: flex; align-items: center; gap: 10px;
+      min-width: 140px;
+    }
+    .cash-icon-wrap {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .cash-bubble-text { display: flex; flex-direction: column; }
+    .cash-amount { font-size: 16px; font-weight: 700; color: #fff; }
+    .cash-label { font-size: 11px; color: #666; margin-top: 1px; }
+
+    /* ── CASH PANEL ── */
+    .cash-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6); z-index: 100;
+    }
+    .cash-overlay.open { display: block; }
+
+    .cash-panel {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px;
+      background: #111; border-radius: 20px 20px 0 0;
+      padding: 16px 20px;
+      padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+      z-index: 101;
+      transform: translateX(-50%) translateY(100%);
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .cash-panel.open { transform: translateX(-50%) translateY(0); }
+
+    .cash-panel-handle {
+      width: 36px; height: 4px; background: #333;
+      border-radius: 2px; margin: 0 auto 18px;
+    }
+    .cash-panel-title {
+      font-size: 15px; font-weight: 600;
+      text-align: center; margin-bottom: 18px; color: #fff;
+    }
+
+    .cash-presets {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 10px; margin-bottom: 16px;
+    }
+    .cash-preset {
+      background: #1e1e1e; border: 1.5px solid #2a2a2a;
+      border-radius: 12px; padding: 13px 0;
+      font-size: 17px; font-weight: 700; color: #fff;
+      text-align: center; cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .cash-preset:active, .cash-preset.selected {
+      border-color: #22c55e; background: #0d2010;
+    }
+
+    .cash-custom-wrap {
+      display: flex; align-items: center;
+      background: #1e1e1e; border: 1.5px solid #2a2a2a;
+      border-radius: 12px; padding: 0 14px;
+      margin-bottom: 18px; height: 48px;
+    }
+    .cash-custom-wrap span { color: #aaa; font-size: 18px; margin-right: 6px; }
+    #cash-custom {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: #fff; font-size: 18px; font-weight: 600;
+    }
+    #cash-custom::placeholder { color: #444; font-weight: 400; }
+
+    .cash-send-btn {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      border: none; border-radius: 14px;
+      color: #fff; font-size: 16px; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.3px;
+    }
+    .cash-send-btn:disabled { opacity: 0.4; cursor: default; }
+
+    /* ── LENGTH PANEL ── */
+    .length-panel {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px;
+      background: #111; border-radius: 20px 20px 0 0;
+      padding: 16px 24px;
+      padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+      z-index: 101;
+      transform: translateX(-50%) translateY(100%);
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .length-panel.open { transform: translateX(-50%) translateY(0); }
+
+    .length-panel-handle {
+      width: 36px; height: 4px; background: #333;
+      border-radius: 2px; margin: 0 auto 18px;
+    }
+    .length-panel-title {
+      font-size: 15px; font-weight: 600;
+      text-align: center; margin-bottom: 24px; color: #fff;
+    }
+
+    .length-labels {
+      display: flex; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .length-label {
+      font-size: 11px; color: #555; text-align: center;
+      flex: 1; transition: color 0.15s;
+    }
+    .length-label.active { color: #a855f7; font-weight: 600; }
+
+    .length-slider-wrap { position: relative; padding: 4px 0; margin-bottom: 18px; }
+
+    input[type=range]#length-slider {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 4px;
+      background: #2a2a2a; border-radius: 2px; outline: none; cursor: pointer;
+    }
+    input[type=range]#length-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 24px; height: 24px; border-radius: 50%;
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      cursor: pointer; box-shadow: 0 0 8px rgba(168,85,247,0.5);
+    }
+    input[type=range]#length-slider::-moz-range-thumb {
+      width: 24px; height: 24px; border-radius: 50%; border: none;
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      cursor: pointer;
+    }
+
+    .length-desc {
+      text-align: center; font-size: 13px; color: #666;
+      min-height: 18px; transition: color 0.15s;
+    }
   </style>
 </head>
 <body>
@@ -210,6 +350,16 @@
       <div class="header-status">Active now</div>
     </div>
     <div class="header-actions">
+      <!-- share profile -->
+      <span class="header-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="white" stroke-width="1.8"/>
+          <path d="M8 12c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M15 9.5l1 2.5 2.5-1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 12c0 2.2-1.8 4-4 4s-4-1.8-4-4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M9 14.5l-1-2.5-2.5 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
       <!-- phone -->
       <span class="header-icon">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -229,7 +379,7 @@
         <div class="profile-card-dot"></div>
       </div>
       <div class="profile-card-name">thornlust</div>
-      <div class="profile-card-meta">20K followers · 53 posts<br>Instagram</div>
+      <div class="profile-card-meta">20K followers · 53 posts<br>You don't follow each other on Instagram</div>
       <button class="profile-card-btn">View profile</button>
     </div>
   </div>
@@ -261,22 +411,21 @@
         </svg>
       </span>
 
-      <!-- image -->
+      <!-- cash -->
       <span class="input-icon" id="img-btn" tabindex="-1">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <rect x="3" y="3" width="18" height="18" rx="3" stroke="white" stroke-width="1.8"/>
-          <circle cx="8.5" cy="8.5" r="1.5" fill="white"/>
-          <path d="M21 15l-5-5L5 21" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="2" y="6" width="20" height="13" rx="2" stroke="white" stroke-width="1.8"/>
+          <circle cx="12" cy="12.5" r="3" stroke="white" stroke-width="1.8"/>
+          <path d="M6 9v7M18 9v7" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
       </span>
 
       <!-- sticker -->
       <span class="input-icon" id="sticker-btn" tabindex="-1">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.8"/>
-          <path d="M8.5 14.5s1 2 3.5 2 3.5-2 3.5-2" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-          <circle cx="9" cy="10" r="1.2" fill="white"/>
-          <circle cx="15" cy="10" r="1.2" fill="white"/>
+          <line x1="4" y1="7" x2="20" y2="7" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="4" y1="12" x2="16" y2="12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="4" y1="17" x2="11" y2="17" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
       </span>
 
@@ -299,31 +448,140 @@
     </div>
   </div>
 
+<!-- LENGTH PANEL -->
+<div class="length-panel" id="length-panel">
+  <div class="length-panel-handle"></div>
+  <div class="length-panel-title">Response length</div>
+  <div class="length-labels">
+    <span class="length-label" data-i="0">Terse</span>
+    <span class="length-label" data-i="1">Short</span>
+    <span class="length-label" data-i="2">Medium</span>
+    <span class="length-label" data-i="3">Long</span>
+    <span class="length-label" data-i="4">Rambling</span>
+  </div>
+  <div class="length-slider-wrap">
+    <input type="range" id="length-slider" min="0" max="4" step="1" value="1" />
+  </div>
+  <div class="length-desc" id="length-desc">1-2 sentences</div>
+</div>
+
+<!-- CASH PANEL -->
+<div class="cash-overlay" id="cash-overlay"></div>
+<div class="cash-panel" id="cash-panel">
+  <div class="cash-panel-handle"></div>
+  <div class="cash-panel-title">Send her cash</div>
+  <div class="cash-presets">
+    <div class="cash-preset" data-amount="5">$5</div>
+    <div class="cash-preset" data-amount="10">$10</div>
+    <div class="cash-preset" data-amount="25">$25</div>
+    <div class="cash-preset" data-amount="50">$50</div>
+    <div class="cash-preset" data-amount="100">$100</div>
+    <div class="cash-preset" data-amount="500">$500</div>
+  </div>
+  <div class="cash-custom-wrap">
+    <span>$</span>
+    <input id="cash-custom" type="number" min="1" placeholder="custom amount" inputmode="numeric" />
+  </div>
+  <button class="cash-send-btn" id="cash-send-btn" disabled>Send</button>
+</div>
+
 <script>
+  // ── DOM refs ──
   const messagesEl = document.getElementById('messages');
-  const input = document.getElementById('msg-input');
-  const sendBtn = document.getElementById('send-btn');
-  const micBtn = document.getElementById('mic-btn');
-  const imgBtn = document.getElementById('img-btn');
+  const input      = document.getElementById('msg-input');
+  const sendBtn    = document.getElementById('send-btn');
+  const micBtn     = document.getElementById('mic-btn');
+  const imgBtn     = document.getElementById('img-btn');
   const stickerBtn = document.getElementById('sticker-btn');
-  const plusBtn = document.getElementById('plus-btn');
+  const plusBtn    = document.getElementById('plus-btn');
+  const inputBar   = document.querySelector('.input-bar');
 
-  let history = [];
-  let sessionMsgs = [];
-  let isTyping = false;
-  let lastSender = null;
+  // ── State ──
+  let history = [], sessionMsgs = [], isTyping = false, lastSender = null;
 
-  // ── Save history to server ──
-  function saveHistory() {
-    fetch('/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: history })
-    }).catch(() => {});
+  // ── Shared overlay ──
+  const sharedOverlay = document.getElementById('cash-overlay');
+
+  function closeAllPanels() {
+    cashPanel.classList.remove('open');
+    lengthPanel.classList.remove('open');
+    sharedOverlay.classList.remove('open');
+  }
+  sharedOverlay.addEventListener('click', closeAllPanels);
+
+  // ── LENGTH PANEL ──
+  const lengthPanel  = document.getElementById('length-panel');
+  const lengthSlider = document.getElementById('length-slider');
+  const lengthDesc   = document.getElementById('length-desc');
+  const lengthLevels = [
+    { desc: '1 sentence max', instruction: 'RESPOND IN ONE SENTENCE ONLY. Absolutely no more.' },
+    { desc: '1-2 sentences',  instruction: 'Keep your response to 1-2 short sentences max.' },
+    { desc: '3-4 sentences',  instruction: 'You can write 3-4 sentences if the topic calls for it.' },
+    { desc: '5-6 sentences',  instruction: 'Feel free to write 5-6 sentences and be more expressive.' },
+    { desc: 'go off',         instruction: 'Write as much as you want. Be detailed, expressive, go off.' },
+  ];
+  let currentLength = 1;
+
+  function updateLengthUI(val) {
+    currentLength = val;
+    lengthDesc.textContent = lengthLevels[val].desc;
+    document.querySelectorAll('.length-label').forEach(el =>
+      el.classList.toggle('active', parseInt(el.dataset.i) === val)
+    );
   }
 
-  // ── Keyboard / viewport handling ──
-  const inputBar = document.querySelector('.input-bar');
+  lengthSlider.addEventListener('input', () => updateLengthUI(parseInt(lengthSlider.value)));
+  stickerBtn.addEventListener('click', () => {
+    sharedOverlay.classList.add('open');
+    requestAnimationFrame(() => lengthPanel.classList.add('open'));
+  });
+  updateLengthUI(1);
+
+  // ── CASH PANEL ──
+  const cashPanel    = document.getElementById('cash-panel');
+  const cashCustom   = document.getElementById('cash-custom');
+  const cashSendBtn  = document.getElementById('cash-send-btn');
+  let selectedCashAmount = null;
+
+  function openCashPanel() {
+    selectedCashAmount = null;
+    cashCustom.value = '';
+    cashSendBtn.disabled = true;
+    document.querySelectorAll('.cash-preset').forEach(el => el.classList.remove('selected'));
+    sharedOverlay.classList.add('open');
+    requestAnimationFrame(() => cashPanel.classList.add('open'));
+  }
+
+  document.querySelectorAll('.cash-preset').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.cash-preset').forEach(p => p.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedCashAmount = parseInt(el.dataset.amount);
+      cashCustom.value = '';
+      cashSendBtn.disabled = false;
+    });
+  });
+
+  cashCustom.addEventListener('input', () => {
+    const val = parseInt(cashCustom.value);
+    document.querySelectorAll('.cash-preset').forEach(p => p.classList.remove('selected'));
+    selectedCashAmount = val > 0 ? val : null;
+    cashSendBtn.disabled = !selectedCashAmount;
+  });
+
+  cashSendBtn.addEventListener('click', () => {
+    if (!selectedCashAmount) return;
+    closeAllPanels();
+    sendCash(selectedCashAmount);
+  });
+
+  imgBtn.addEventListener('click', openCashPanel);
+
+  // ── Helpers ──
+  function saveHistory() {
+    fetch('/save', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: history }) }).catch(() => {});
+  }
 
   function applyViewport() {
     if (!window.visualViewport) return;
@@ -331,18 +589,15 @@
     const keyboardUp = vv.height < window.innerHeight * 0.8;
     document.body.style.height = vv.height + 'px';
     document.body.style.top = vv.offsetTop + 'px';
-    // remove bottom padding when keyboard is up so bar sits flush
     inputBar.style.paddingBottom = keyboardUp ? '2px' : '';
     scrollBottom();
   }
-
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', applyViewport);
     window.visualViewport.addEventListener('scroll', applyViewport);
     applyViewport();
   }
 
-  // Keep keyboard open — iOS blurs on value clear, so we prevent default blur
   input.addEventListener('blur', (e) => {
     if (isTyping || input.dataset.keepFocus === 'true') {
       e.preventDefault();
@@ -351,30 +606,23 @@
   });
 
   function scrollBottom() {
-    requestAnimationFrame(() => {
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-    });
+    requestAnimationFrame(() => { messagesEl.scrollTop = messagesEl.scrollHeight; });
   }
 
   function appendMessage(role, text) {
     const isSent = role === 'user';
     lastSender = role;
-
     const row = document.createElement('div');
     row.className = `msg-row ${isSent ? 'sent' : 'received'}`;
-
     if (!isSent) {
       const av = document.createElement('img');
-      av.className = 'msg-avatar';
-      av.src = '/avatar.jpeg';
+      av.className = 'msg-avatar'; av.src = '/avatar.jpeg';
       row.appendChild(av);
     }
-
     const bubble = document.createElement('div');
     bubble.className = `bubble ${isSent ? 'sent' : 'received'}`;
     bubble.textContent = text;
     row.appendChild(bubble);
-
     messagesEl.appendChild(row);
     scrollBottom();
     return bubble;
@@ -383,20 +631,14 @@
   function showTyping() {
     removeTyping();
     const row = document.createElement('div');
-    row.className = 'msg-row received';
-    row.id = 'typing-row';
-
+    row.className = 'msg-row received'; row.id = 'typing-row';
     const av = document.createElement('img');
-    av.className = 'msg-avatar';
-    av.src = '/avatar.jpeg';
+    av.className = 'msg-avatar'; av.src = '/avatar.jpeg';
     row.appendChild(av);
-
     const bubble = document.createElement('div');
     bubble.className = 'bubble received typing-bubble';
     for (let i = 0; i < 3; i++) {
-      const d = document.createElement('div');
-      d.className = 'typing-dot';
-      bubble.appendChild(d);
+      const d = document.createElement('div'); d.className = 'typing-dot'; bubble.appendChild(d);
     }
     row.appendChild(bubble);
     messagesEl.appendChild(row);
@@ -404,18 +646,16 @@
   }
 
   function removeTyping() {
-    const t = document.getElementById('typing-row');
-    if (t) t.remove();
+    const t = document.getElementById('typing-row'); if (t) t.remove();
   }
 
-  // Toggle icons vs send button
   function updateInputIcons() {
     const hasText = input.value.trim().length > 0;
     sendBtn.classList.toggle('visible', hasText);
-    micBtn.style.display    = hasText ? 'none' : 'flex';
-    imgBtn.style.display    = hasText ? 'none' : 'flex';
+    micBtn.style.display     = hasText ? 'none' : 'flex';
+    imgBtn.style.display     = hasText ? 'none' : 'flex';
     stickerBtn.style.display = hasText ? 'none' : 'flex';
-    plusBtn.style.display   = hasText ? 'none' : 'flex';
+    plusBtn.style.display    = hasText ? 'none' : 'flex';
   }
 
   input.addEventListener('input', () => {
@@ -423,92 +663,120 @@
     input.style.height = Math.min(input.scrollHeight, 120) + 'px';
     updateInputIcons();
   });
-
   input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   });
-
   sendBtn.addEventListener('click', () => sendMessage());
   document.getElementById('msg-form').addEventListener('submit', () => sendMessage());
 
+  // ── Stream helper ──
+  async function readStream(res) {
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let fullText = '', bubble = null;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const lines = decoder.decode(value).split('\n').filter(l => l.startsWith('data: '));
+      for (const line of lines) {
+        const data = line.slice(6);
+        if (data === '[DONE]') break;
+        try {
+          const json = JSON.parse(data);
+          if (json.error) {
+            removeTyping();
+            if (!bubble) bubble = appendMessage('assistant', '');
+            bubble.textContent = json.error; break;
+          }
+          if (json.final !== undefined) {
+            if (!bubble) { removeTyping(); bubble = appendMessage('assistant', json.final); }
+            else { bubble.textContent = json.final; scrollBottom(); }
+            fullText = json.final;
+          } else if (json.content) {
+            fullText += json.content;
+            const display = json.full !== undefined ? json.full : fullText;
+            if (!bubble) { removeTyping(); bubble = appendMessage('assistant', display); }
+            else { bubble.textContent = display; scrollBottom(); }
+          }
+        } catch (_) {}
+      }
+    }
+    return fullText;
+  }
+
+  // ── Send message ──
   async function sendMessage() {
     const text = input.value.trim();
     if (!text || isTyping) return;
-
-    const card = document.getElementById('profile-card');
-    if (card) card.remove();
-
+    const card = document.getElementById('profile-card'); if (card) card.remove();
     appendMessage('user', text);
     const userMsg = { role: 'user', content: text };
-    history.push(userMsg);
-    sessionMsgs.push(userMsg);
-
+    history.push(userMsg); sessionMsgs.push(userMsg);
     input.dataset.keepFocus = 'true';
-    input.value = '';
-    input.style.height = 'auto';
-    updateInputIcons();
-    input.focus();
-
-    isTyping = true;
-    showTyping();
-
+    input.value = ''; input.style.height = 'auto';
+    updateInputIcons(); input.focus();
+    isTyping = true; showTyping();
     try {
-      const res = await fetch('/chat', {
-        method: 'POST',
+      const res = await fetch('/chat', { method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: sessionMsgs })
+        body: JSON.stringify({ messages: sessionMsgs, length_instruction: lengthLevels[currentLength].instruction })
       });
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let fullText = '';
-      let bubble = null;
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const lines = decoder.decode(value).split('\n').filter(l => l.startsWith('data: '));
-        for (const line of lines) {
-          const data = line.slice(6);
-          if (data === '[DONE]') break;
-          try {
-            const json = JSON.parse(data);
-            if (json.error) {
-              removeTyping();
-              if (!bubble) bubble = appendMessage('assistant', '');
-              bubble.textContent = json.error;
-              break;
-            }
-            if (json.final !== undefined) {
-              if (!bubble) { removeTyping(); bubble = appendMessage('assistant', json.final); }
-              else { bubble.textContent = json.final; scrollBottom(); }
-              fullText = json.final;
-            } else if (json.content) {
-              fullText += json.content;
-              const display = json.full !== undefined ? json.full : fullText;
-              if (!bubble) { removeTyping(); bubble = appendMessage('assistant', display); }
-              else { bubble.textContent = display; scrollBottom(); }
-            }
-          } catch (_) {}
-        }
-      }
-
+      const fullText = await readStream(res);
       if (fullText) {
-        const assistantMsg = { role: 'assistant', content: fullText };
-        history.push(assistantMsg);
-        sessionMsgs.push(assistantMsg);
-        saveHistory();
+        const msg = { role: 'assistant', content: fullText };
+        history.push(msg); sessionMsgs.push(msg); saveHistory();
       }
-
     } catch (err) {
       removeTyping();
       appendMessage('assistant', 'Something went wrong. Make sure Ollama is running.');
     }
+    isTyping = false;
+    input.dataset.keepFocus = 'false';
+  }
 
+  // ── Send cash ──
+  function appendCashBubble(amount) {
+    const row = document.createElement('div');
+    row.className = 'msg-row sent';
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble cash';
+    bubble.innerHTML = `
+      <div class="cash-icon-wrap">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="6" width="20" height="13" rx="2" stroke="white" stroke-width="2"/>
+          <circle cx="12" cy="12.5" r="3" stroke="white" stroke-width="2"/>
+          <path d="M6 9v7M18 9v7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="cash-bubble-text">
+        <span class="cash-amount">$${amount}</span>
+        <span class="cash-label">sent to thornlust</span>
+      </div>`;
+    row.appendChild(bubble);
+    messagesEl.appendChild(row);
+    scrollBottom();
+  }
+
+  async function sendCash(amount) {
+    const card = document.getElementById('profile-card'); if (card) card.remove();
+    appendCashBubble(amount);
+    const cashMsg = { role: 'user', content: `[sent you $${amount}]` };
+    history.push(cashMsg); sessionMsgs.push(cashMsg);
+    isTyping = true; showTyping();
+    try {
+      const res = await fetch('/chat', { method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: sessionMsgs, length_instruction: lengthLevels[currentLength].instruction })
+      });
+      const fullText = await readStream(res);
+      if (fullText) {
+        const msg = { role: 'assistant', content: fullText };
+        history.push(msg); sessionMsgs.push(msg); saveHistory();
+      }
+    } catch (err) {
+      removeTyping();
+      appendMessage('assistant', 'Something went wrong.');
+    }
     isTyping = false;
     input.dataset.keepFocus = 'false';
   }
@@ -535,7 +803,7 @@
         <div class="profile-card-dot"></div>
       </div>
       <div class="profile-card-name">thornlust</div>
-      <div class="profile-card-meta">20K followers · 53 posts<br>Instagram</div>
+      <div class="profile-card-meta">20K followers · 53 posts<br>You don't follow each other on Instagram</div>
       <button class="profile-card-btn">View profile</button>`;
     messagesEl.appendChild(card);
   });

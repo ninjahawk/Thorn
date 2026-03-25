@@ -129,12 +129,14 @@ def summarize_in_background(messages_to_summarize):
         print(f"[memory] summarize failed: {e}", flush=True)
 
 
-def build_ollama_messages(all_messages):
+def build_ollama_messages(all_messages, length_instruction=None):
     """Return system context + trimmed message list for Ollama."""
     memory = load_memory()
     system = load_personality()
     if memory:
         system += f"\n\nMemory from previous conversations:\n{memory}"
+    if length_instruction:
+        system += f"\n\nRESPONSE LENGTH RULE (overrides all other length rules): {length_instruction}"
 
     recent = all_messages[-RECENT_WINDOW:] if len(all_messages) > RECENT_WINDOW else all_messages
     return [{"role": "system", "content": system}] + recent
@@ -221,7 +223,8 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         messages = body.get("messages", [])
-        ollama_messages = build_ollama_messages(messages)
+        length_instruction = body.get("length_instruction", None)
+        ollama_messages = build_ollama_messages(messages, length_instruction)
 
         print(f"[chat] sending {len(ollama_messages)} messages to ollama", flush=True)
         print(f"[chat] system prompt (first 120 chars): {ollama_messages[0]['content'][:120]}", flush=True)
