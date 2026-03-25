@@ -168,7 +168,7 @@
 
     #msg-input {
       flex: 1; background: transparent; border: none; outline: none;
-      color: #fff; font-size: 15px; padding: 8px 0;
+      color: #fff; font-size: 16px; padding: 8px 0;
       resize: none; font-family: inherit; line-height: 1.4; max-height: 120px;
     }
     #msg-input::placeholder { color: #555; }
@@ -685,6 +685,7 @@
     const vv = window.visualViewport;
     const keyboardUp = vv.height < window.innerHeight * 0.8;
     document.body.style.height = vv.height + 'px';
+    document.body.style.top = vv.offsetTop + 'px';
     inputBar.style.paddingBottom = keyboardUp ? '2px' : '';
     scrollBottom();
   }
