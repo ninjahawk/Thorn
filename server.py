@@ -12,6 +12,7 @@ PUBLIC_DIR = BASE_DIR / "public"
 HISTORY_FILE = BASE_DIR / "chat_history.json"
 MEMORY_FILE = BASE_DIR / "memories.json"
 PERSONALITY_FILE = BASE_DIR / "personality.txt"
+GF_PERSONALITY_FILE = BASE_DIR / "personality_gf.txt"
 SESSIONS_DIR = BASE_DIR / "sessions"
 SESSIONS_DIR.mkdir(exist_ok=True)
 
@@ -42,10 +43,11 @@ def clean_response(text):
     text = EMOJI_PATTERN.sub('', text)
     return text.rstrip().rstrip('.')
 
-def load_personality():
-    if PERSONALITY_FILE.exists():
-        return PERSONALITY_FILE.read_text(encoding="utf-8").strip()
-    return "You are Emmi, a warm and flirty young woman texting her boyfriend on Instagram. Be casual, loving, and never break character."
+def load_personality(mode='flirty'):
+    file = GF_PERSONALITY_FILE if mode == 'sweet' else PERSONALITY_FILE
+    if file.exists():
+        return file.read_text(encoding="utf-8").strip()
+    return "You are Emmi, a warm and friendly young woman texting her boyfriend on Instagram. Be casual, fun, and never break character."
 
 SUMMARIZE_PROMPT = """Below is a conversation between Emmi and her boyfriend. Summarize the key things to remember: topics discussed, things he shared about himself, emotional moments, inside jokes, anything promised or mentioned. Be concise — bullet points. This summary will be used so Emmi remembers past conversations.
 
@@ -129,10 +131,10 @@ def summarize_in_background(messages_to_summarize):
         print(f"[memory] summarize failed: {e}", flush=True)
 
 
-def build_ollama_messages(all_messages, length_instruction=None):
+def build_ollama_messages(all_messages, length_instruction=None, mode='flirty'):
     """Return system context + trimmed message list for Ollama."""
     memory = load_memory()
-    system = load_personality()
+    system = load_personality(mode)
     if memory:
         system += f"\n\nMemory from previous conversations:\n{memory}"
     if length_instruction:
@@ -224,7 +226,8 @@ class Handler(BaseHTTPRequestHandler):
 
         messages = body.get("messages", [])
         length_instruction = body.get("length_instruction", None)
-        ollama_messages = build_ollama_messages(messages, length_instruction)
+        mode = body.get("mode", "flirty")
+        ollama_messages = build_ollama_messages(messages, length_instruction, mode)
 
         print(f"[chat] sending {len(ollama_messages)} messages to ollama", flush=True)
         print(f"[chat] system prompt (first 120 chars): {ollama_messages[0]['content'][:120]}", flush=True)

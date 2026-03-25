@@ -274,6 +274,16 @@
     }
     .cash-send-btn:disabled { opacity: 0.4; cursor: default; }
 
+    /* ── MODE TOGGLE ── */
+    .mode-toggle {
+      padding: 4px 11px; border-radius: 20px; border: none;
+      font-size: 11px; font-weight: 700; cursor: pointer;
+      letter-spacing: 0.3px; transition: all 0.2s; white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .mode-toggle.flirty { background: linear-gradient(135deg, #a855f7, #ec4899); color: #fff; }
+    .mode-toggle.sweet  { background: linear-gradient(135deg, #06b6d4, #3b82f6); color: #fff; }
+
     /* ── GIFT BUBBLE ── */
     .bubble.gift {
       background: #1a1a1a;
@@ -418,6 +428,7 @@
       <div class="header-status">Active now</div>
     </div>
     <div class="header-actions">
+      <button class="mode-toggle flirty" id="mode-toggle">Flirty</button>
       <!-- share profile -->
       <span class="header-icon">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -574,7 +585,15 @@
   const inputBar   = document.querySelector('.input-bar');
 
   // ── State ──
-  let history = [], sessionMsgs = [], isTyping = false, lastSender = null;
+  let history = [], sessionMsgs = [], isTyping = false, lastSender = null, currentMode = 'flirty';
+
+  // ── Mode toggle ──
+  const modeToggleBtn = document.getElementById('mode-toggle');
+  modeToggleBtn.addEventListener('click', () => {
+    currentMode = currentMode === 'flirty' ? 'sweet' : 'flirty';
+    modeToggleBtn.textContent = currentMode === 'flirty' ? 'Flirty' : 'Sweet';
+    modeToggleBtn.className = `mode-toggle ${currentMode}`;
+  });
 
   // ── Shared overlay ──
   const sharedOverlay = document.getElementById('cash-overlay');
@@ -666,7 +685,6 @@
     const vv = window.visualViewport;
     const keyboardUp = vv.height < window.innerHeight * 0.8;
     document.body.style.height = vv.height + 'px';
-    document.body.style.top = vv.offsetTop + 'px';
     inputBar.style.paddingBottom = keyboardUp ? '2px' : '';
     scrollBottom();
   }
@@ -797,7 +815,7 @@
     try {
       const res = await fetch('/chat', { method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: sessionMsgs, length_instruction: lengthLevels[currentLength].instruction })
+        body: JSON.stringify({ messages: sessionMsgs, length_instruction: lengthLevels[currentLength].instruction, mode: currentMode })
       });
       const fullText = await readStream(res);
       if (fullText) {
@@ -844,7 +862,7 @@
     try {
       const res = await fetch('/chat', { method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: sessionMsgs, length_instruction: lengthLevels[currentLength].instruction })
+        body: JSON.stringify({ messages: sessionMsgs, length_instruction: lengthLevels[currentLength].instruction, mode: currentMode })
       });
       const fullText = await readStream(res);
       if (fullText) {
@@ -971,7 +989,7 @@
     try {
       const res = await fetch('/chat', { method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: sessionMsgs, length_instruction: lengthLevels[currentLength].instruction })
+        body: JSON.stringify({ messages: sessionMsgs, length_instruction: lengthLevels[currentLength].instruction, mode: currentMode })
       });
       const fullText = await readStream(res);
       if (fullText) {
