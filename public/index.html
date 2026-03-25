@@ -562,7 +562,7 @@
     .story-username { font-size: 14px; font-weight: 600; color: #fff; flex: 1; }
     .story-time { font-size: 13px; color: rgba(255,255,255,0.6); margin-right: 6px; }
     .story-close { font-size: 24px; color: #fff; cursor: pointer; line-height: 1; padding: 4px; }
-    .story-image-wrap { flex: 1; position: relative; overflow: hidden; border-radius: 10px; margin: 0 4px 4px; }
+    .story-image-wrap { flex: 1; position: relative; overflow: hidden; border-radius: 10px; margin: 0 4px 4px; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
     .story-image { width: 100%; height: 100%; object-fit: cover; display: block; }
     .story-tap-zone {
       position: absolute; top: 0; bottom: 0; width: 35%; cursor: pointer;
@@ -685,8 +685,8 @@
     <div class="input-wrap">
       <form id="msg-form" style="flex:1;display:flex;" onsubmit="return false;">
       <textarea id="msg-input" rows="1" placeholder="Message..."
-        autocomplete="off" autocorrect="off" autocapitalize="sentences"
-        spellcheck="false" enterkeyhint="send" style="flex:1;"></textarea>
+        autocomplete="off" autocorrect="on" autocapitalize="sentences"
+        spellcheck="true" enterkeyhint="send" style="flex:1;"></textarea>
       </form>
 
       <!-- mic -->
@@ -1515,6 +1515,46 @@
     }, { passive: true });
   }
 
+  const POST_CAPTIONS = [
+    "love this outfit more every time i wear it",
+    "midnight run hits different",
+    "green is so my color",
+    "good morning from here",
+    "academia era for no reason",
+    "they called, i came",
+    "mirror check before i leave",
+    "errands but make it cute",
+    "pretending to be productive",
+    "sunday morning in the kitchen",
+    "black dress, dont ask where",
+    "sun came out so obviously i did too",
+    "top down, hair everywhere",
+    "leather shorts were a choice i stand by",
+    "hotel mornings are the best mornings",
+    "reporting for duty",
+    "just checking in",
+    "white dress and nowhere to be",
+    "stay down",
+    "classic combo never misses",
+    "windows down, music up",
+    "fully committed to the bit",
+    "quick stop",
+    "somewhere nice for once",
+    "beach run, peace",
+    "recording something, dont ask what",
+    "she and i have an understanding",
+    "wfh fit is whatever i want it to be",
+    "warm day energy",
+    "going somewhere, not telling you where",
+    "simple day",
+    "morning light in here is unreal",
+    "almost ready",
+    "this one broke the explore page a little",
+    "good morning",
+    "the skirt stays",
+    "just ran errands",
+  ];
+
   function buildFeed() {
     if (feedBuilt) return;
     feedBuilt = true;
@@ -1539,7 +1579,7 @@
             <span class="post-viewer-icon">${ICON_SHARE}</span>
             <span class="post-viewer-icon save">${ICON_SAVE}</span>
           </div>
-          <div class="post-viewer-caption"><strong>thornlust</strong>just vibing</div>
+          <div class="post-viewer-caption"><strong>thornlust</strong>${POST_CAPTIONS[i] || 'just vibing'}</div>
           <div class="post-viewer-timestamp">7 hours ago</div>
         </div>
       </div>`;
@@ -1617,17 +1657,17 @@
 
   // ── STORY VIEWER ──
   const HIGHLIGHTS = [
-    { images: ['/IMG_1975.jpeg', '/IMG_1959.jpeg', '/IMG_1963.jpeg', '/IMG_1976.jpeg'] },
+    { images: ['/IMG_1975.jpeg', '/IMG_1959.jpeg', '/IMG_1963.jpeg', '/IMG_1976.jpeg', '/IMG_2002.jpeg', '/IMG_2003.jpeg', '/IMG_2004.jpeg'] },
     { images: ['/IMG_1962.jpeg', '/IMG_1967.jpeg', '/IMG_1973.jpeg', '/IMG_1991.jpeg'] },
     { images: ['/IMG_1965.jpeg', '/IMG_1966.jpeg', '/IMG_1993.jpeg', '/IMG_1996.jpeg'] },
-    { images: ['/IMG_1972.jpeg', '/IMG_1974.jpeg', '/IMG_1978.jpeg', '/IMG_1982.jpeg'] },
-    { images: ['/IMG_1980.jpeg', '/IMG_1981.jpeg', '/IMG_1983.jpeg', '/IMG_1986.jpeg'] },
+    { images: ['/IMG_1972.jpeg', '/IMG_1974.jpeg', '/IMG_1978.jpeg', '/IMG_1982.jpeg', '/IMG_2005.jpeg', '/IMG_2006.jpeg', '/IMG_2007.jpeg'] },
+    { images: ['/IMG_1980.jpeg', '/IMG_1981.jpeg', '/IMG_1983.jpeg', '/IMG_1986.jpeg', '/IMG_2008.jpeg', '/IMG_2009.jpeg', '/IMG_2010.jpeg'] },
   ];
 
   const storyViewer = document.getElementById('story-viewer');
   const storyImg    = document.getElementById('story-image');
   const storyProg   = document.getElementById('story-progress-row');
-  let storyHL = null, storySlide = 0, storyTimer = null;
+  let storyHL = null, storySlide = 0, storyTimer = null, storyPaused = false, storySlideStart = 0, storyPauseElapsed = 0;
   const STORY_DUR = 5000;
 
   function openHighlight(idx) {
@@ -1639,6 +1679,9 @@
 
   function showSlide() {
     clearTimeout(storyTimer);
+    storyPaused = false;
+    storyPauseElapsed = 0;
+    storySlideStart = Date.now();
     storyImg.src = storyHL.images[storySlide];
     const n = storyHL.images.length;
     storyProg.innerHTML = Array.from({length: n}, (_, i) =>
@@ -1667,7 +1710,39 @@
 
   function closeStory() {
     clearTimeout(storyTimer);
+    storyPaused = false;
     storyViewer.classList.remove('open');
+  }
+
+  function pauseStory() {
+    if (storyPaused || !storyHL) return;
+    storyPaused = true;
+    clearTimeout(storyTimer);
+    storyPauseElapsed = Date.now() - storySlideStart;
+    const fill = document.getElementById(`spf${storySlide}`);
+    if (fill) {
+      const computed = parseFloat(window.getComputedStyle(fill).width);
+      const barWidth = fill.parentElement.offsetWidth || 1;
+      fill.style.transition = 'none';
+      fill.style.width = ((computed / barWidth) * 100) + '%';
+    }
+  }
+
+  function resumeStory() {
+    if (!storyPaused || !storyHL) return;
+    storyPaused = false;
+    const remaining = Math.max(0, STORY_DUR - storyPauseElapsed);
+    storySlideStart = Date.now() - storyPauseElapsed;
+    const fill = document.getElementById(`spf${storySlide}`);
+    if (fill && remaining > 0) {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        fill.style.transition = `width ${remaining}ms linear`;
+        fill.style.width = '100%';
+      }));
+      storyTimer = setTimeout(nextSlide, remaining);
+    } else {
+      nextSlide();
+    }
   }
 
   document.getElementById('story-close').addEventListener('click', closeStory);
@@ -1685,6 +1760,12 @@
     const dx = e.changedTouches[0].clientX - _sx0;
     if (dy > 70 && Math.abs(dx) < Math.abs(dy) * 0.6) closeStory();
   }, { passive: true });
+
+  // hold to pause story
+  const storyImageWrap = document.querySelector('.story-image-wrap');
+  storyImageWrap.addEventListener('touchstart', () => pauseStory(), { passive: true });
+  storyImageWrap.addEventListener('touchend', () => resumeStory(), { passive: true });
+  storyImageWrap.addEventListener('contextmenu', e => e.preventDefault());
 
   document.querySelectorAll('.profile-highlight').forEach((el, i) => {
     el.addEventListener('click', () => openHighlight(i));
