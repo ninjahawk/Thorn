@@ -478,10 +478,11 @@
     }
     .profile-highlight-inner {
       width: 100%; height: 100%; border-radius: 50%;
-      border: 2px solid #000; overflow: hidden;
-      background: #1a1a1a;
+      border: 2px solid #000;
+      background: #111;
+      display: flex; align-items: center; justify-content: center;
     }
-    .profile-highlight-inner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .profile-highlight-inner svg { width: 28px; height: 28px; }
     .profile-highlight-label { font-size: 12px; color: #aaa; }
 
     .profile-tabs {
@@ -504,6 +505,70 @@
 
     /* make header avatar/name tappable */
     .header-tap-target { display: flex; align-items: center; gap: 10px; flex: 1; cursor: pointer; min-width: 0; }
+
+    /* ── SESSIONS SCREEN ── */
+    .sessions-screen {
+      position: fixed; inset: 0; z-index: 200;
+      background: #000; display: flex; flex-direction: column;
+      transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .sessions-screen.open { transform: translateX(0); }
+    .sessions-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 16px; padding-top: calc(12px + env(safe-area-inset-top));
+      border-bottom: 1px solid #1a1a1a; flex-shrink: 0;
+    }
+    .sessions-back { color: #fff; cursor: pointer; padding: 4px; display: flex; align-items: center; }
+    .sessions-title { font-size: 17px; font-weight: 700; color: #fff; }
+    .sessions-list { flex: 1; overflow-y: auto; }
+    .sessions-empty { color: #555; font-size: 15px; text-align: center; padding: 60px 20px; }
+    .session-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px; border-bottom: 1px solid #111; cursor: pointer;
+    }
+    .session-item:active { background: #111; }
+    .session-avatar { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+    .session-info { flex: 1; min-width: 0; }
+    .session-name { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 3px; }
+    .session-preview { font-size: 14px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .session-date { font-size: 12px; color: #555; flex-shrink: 0; }
+    .session-delete { color: #555; padding: 6px; cursor: pointer; flex-shrink: 0; font-size: 18px; line-height: 1; }
+
+    /* ── STORY VIEWER ── */
+    .story-viewer {
+      position: fixed; inset: 0; z-index: 400;
+      background: #000; display: flex; flex-direction: column;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.18s ease;
+    }
+    .story-viewer.open { opacity: 1; pointer-events: auto; }
+    .story-progress-row {
+      display: flex; gap: 3px;
+      padding: calc(10px + env(safe-area-inset-top)) 10px 6px;
+      flex-shrink: 0; position: relative; z-index: 2;
+    }
+    .story-progress-bar {
+      flex: 1; height: 2px; background: rgba(255,255,255,0.35); border-radius: 1px; overflow: hidden;
+    }
+    .story-progress-fill {
+      height: 100%; background: #fff; width: 0%;
+    }
+    .story-progress-fill.done { width: 100%; }
+    .story-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 12px 10px; flex-shrink: 0; position: relative; z-index: 2;
+    }
+    .story-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid #fff; }
+    .story-username { font-size: 14px; font-weight: 600; color: #fff; flex: 1; }
+    .story-time { font-size: 13px; color: rgba(255,255,255,0.6); margin-right: 6px; }
+    .story-close { font-size: 24px; color: #fff; cursor: pointer; line-height: 1; padding: 4px; }
+    .story-image-wrap { flex: 1; position: relative; overflow: hidden; border-radius: 10px; margin: 0 4px 4px; }
+    .story-image { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .story-tap-zone {
+      position: absolute; top: 0; bottom: 0; width: 35%; cursor: pointer;
+    }
+    .story-tap-zone.left { left: 0; }
+    .story-tap-zone.right { right: 0; }
 
     /* ── POST VIEWER ── */
     .post-viewer {
@@ -562,7 +627,6 @@
   <!-- HEADER -->
   <div class="header">
     <span class="back-btn" tabindex="-1" id="new-session-btn">
-      <!-- back chevron -->
       <svg width="12" height="21" viewBox="0 0 12 21" fill="none">
         <path d="M11 1L1 10.5L11 20" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
@@ -579,24 +643,19 @@
     </div>
     <div class="header-actions">
       <button class="mode-toggle flirty" id="mode-toggle">Flirty</button>
-      <!-- share profile -->
-      <span class="header-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" stroke="white" stroke-width="1.8"/>
-          <path d="M8 12c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-          <path d="M15 9.5l1 2.5 2.5-1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M16 12c0 2.2-1.8 4-4 4s-4-1.8-4-4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-          <path d="M9 14.5l-1-2.5-2.5 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
       <!-- phone -->
       <span class="header-icon">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </span>
-      <!-- video / stories ring -->
-      <div class="ig-ring"><div class="ig-ring-inner"></div></div>
+      <!-- history / saved chats -->
+      <span class="header-icon" id="sessions-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <polyline points="12 7 12 12 15 15"/>
+        </svg>
+      </span>
     </div>
   </div>
 
@@ -695,6 +754,35 @@
   <div class="length-desc" id="length-desc">1-2 sentences</div>
 </div>
 
+<!-- SESSIONS SCREEN -->
+<div class="sessions-screen" id="sessions-screen">
+  <div class="sessions-header">
+    <span class="sessions-back" id="sessions-back-btn">
+      <svg width="12" height="21" viewBox="0 0 12 21" fill="none">
+        <path d="M11 1L1 10.5L11 20" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+    <span class="sessions-title">Saved Chats</span>
+  </div>
+  <div class="sessions-list" id="sessions-list"></div>
+</div>
+
+<!-- STORY VIEWER -->
+<div class="story-viewer" id="story-viewer">
+  <div class="story-progress-row" id="story-progress-row"></div>
+  <div class="story-header">
+    <img class="story-avatar" src="/avatar.jpeg"/>
+    <span class="story-username">thornlust</span>
+    <span class="story-time">2h</span>
+    <span class="story-close" id="story-close">&times;</span>
+  </div>
+  <div class="story-image-wrap">
+    <img class="story-image" id="story-image" src="" alt=""/>
+    <div class="story-tap-zone left" id="story-tap-left"></div>
+    <div class="story-tap-zone right" id="story-tap-right"></div>
+  </div>
+</div>
+
 <!-- POST VIEWER -->
 <div class="post-viewer" id="post-viewer">
   <div class="post-viewer-topbar">
@@ -750,24 +838,53 @@
   </div>
 
   <div class="profile-highlights">
+    <!-- fits: hanger icon -->
     <div class="profile-highlight">
-      <div class="profile-highlight-ring"><div class="profile-highlight-inner"><img src="/IMG_1959.jpeg"/></div></div>
+      <div class="profile-highlight-ring"><div class="profile-highlight-inner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
+          <path d="M12 7v2l-8 5v1h16v-1l-8-5V7"/>
+        </svg>
+      </div></div>
       <span class="profile-highlight-label">fits</span>
     </div>
+    <!-- travel: airplane -->
     <div class="profile-highlight">
-      <div class="profile-highlight-ring"><div class="profile-highlight-inner"><img src="/IMG_1961.jpeg"/></div></div>
+      <div class="profile-highlight-ring"><div class="profile-highlight-inner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+        </svg>
+      </div></div>
       <span class="profile-highlight-label">travel</span>
     </div>
+    <!-- cars: steering wheel -->
     <div class="profile-highlight">
-      <div class="profile-highlight-ring"><div class="profile-highlight-inner"><img src="/IMG_1963.jpeg"/></div></div>
-      <span class="profile-highlight-label">vibes</span>
+      <div class="profile-highlight-ring"><div class="profile-highlight-inner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <circle cx="12" cy="12" r="2"/>
+          <path d="M12 10V3M6.3 15.7l-3.7 2.1M17.7 15.7l3.7 2.1"/>
+        </svg>
+      </div></div>
+      <span class="profile-highlight-label">cars</span>
     </div>
+    <!-- photos: camera -->
     <div class="profile-highlight">
-      <div class="profile-highlight-ring"><div class="profile-highlight-inner"><img src="/IMG_1965.jpeg"/></div></div>
-      <span class="profile-highlight-label">✨</span>
+      <div class="profile-highlight-ring"><div class="profile-highlight-inner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+      </div></div>
+      <span class="profile-highlight-label">photos</span>
     </div>
+    <!-- inspo: star -->
     <div class="profile-highlight">
-      <div class="profile-highlight-ring"><div class="profile-highlight-inner"><img src="/IMG_1967.jpeg"/></div></div>
+      <div class="profile-highlight-ring"><div class="profile-highlight-inner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      </div></div>
       <span class="profile-highlight-label">inspo</span>
     </div>
   </div>
@@ -789,42 +906,55 @@
   </div>
 
   <div class="profile-grid">
+    <!-- row 1: mirror | night outdoor | green dress studio -->
     <div class="profile-post"><img src="/IMG_1959.jpeg"/></div>
     <div class="profile-post"><img src="/IMG_1960.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1961.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1962.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1963.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1964.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1965.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1966.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1967.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1972.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1973.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1974.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1975.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1976.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1977.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1978.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1979.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1980.jpeg"/></div>
     <div class="profile-post"><img src="/IMG_1981.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1982.jpeg"/></div>
+    <!-- row 2: bed | school outdoor | firefighter -->
+    <div class="profile-post"><img src="/IMG_1972.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1962.jpeg"/></div>
     <div class="profile-post"><img src="/IMG_1983.jpeg"/></div>
+    <!-- row 3: mirror | parking lot | red top studio -->
+    <div class="profile-post"><img src="/IMG_1961.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1973.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1964.jpeg"/></div>
+    <!-- row 4: kitchen (unique) | mirror black dress | outdoor house -->
+    <div class="profile-post"><img src="/IMG_1975.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1979.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1967.jpeg"/></div>
+    <!-- row 5: convertible car | mirror | bed red -->
+    <div class="profile-post"><img src="/IMG_1965.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1982.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1974.jpeg"/></div>
+    <!-- row 6: red uniform | lobby outdoor | mirror white dress -->
     <div class="profile-post"><img src="/IMG_1984.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1985.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1986.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1987.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1988.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1989.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1990.jpeg"/></div>
     <div class="profile-post"><img src="/IMG_1991.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1992.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1977.jpeg"/></div>
+    <!-- row 7: standing over guy (unique) | mirror denim | car red -->
+    <div class="profile-post"><img src="/IMG_1980.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1963.jpeg"/></div>
     <div class="profile-post"><img src="/IMG_1993.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1994.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1995.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1996.jpeg"/></div>
-    <div class="profile-post"><img src="/IMG_1997.jpeg"/></div>
+    <!-- row 8: firefighter suit | bed lying | lobby plaid -->
+    <div class="profile-post"><img src="/IMG_1985.jpeg"/></div>
     <div class="profile-post"><img src="/IMG_1998.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1976.jpeg"/></div>
+    <!-- row 9: podcast (unique) | mirror side angle | lamborghini -->
+    <div class="profile-post"><img src="/IMG_1992.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1994.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1966.jpeg"/></div>
+    <!-- row 10: red bikini | outdoor house | mirror sparkly -->
+    <div class="profile-post"><img src="/IMG_1987.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1989.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1978.jpeg"/></div>
+    <!-- row 11: grey studio | bed red | car side -->
+    <div class="profile-post"><img src="/IMG_1988.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1990.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1996.jpeg"/></div>
+    <!-- row 12: fishnet studio | parking lot | mirror plaid -->
+    <div class="profile-post"><img src="/IMG_1986.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1997.jpeg"/></div>
+    <div class="profile-post"><img src="/IMG_1995.jpeg"/></div>
+    <!-- row 13: parking lot -->
     <div class="profile-post"><img src="/IMG_1999.jpeg"/></div>
   </div>
 
@@ -1164,32 +1294,143 @@
     input.dataset.keepFocus = 'false';
   }
 
-  // ── New session (back button) ──
-  document.getElementById('new-session-btn').addEventListener('click', async () => {
+  // ── Sessions (localStorage) ──
+  const SESSIONS_KEY = 'thorn_sessions';
+
+  function loadSessions() {
+    try { return JSON.parse(localStorage.getItem(SESSIONS_KEY)) || []; }
+    catch { return []; }
+  }
+
+  function saveSessions(sessions) {
+    localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+  }
+
+  function saveCurrentSession() {
     if (!history.length) return;
-    if (!confirm('Start a new session? This chat will be saved to memories.')) return;
-    await fetch('/new-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: history })
+    const sessions = loadSessions();
+    const lastMsg = [...history].reverse().find(m => m.role === 'user' || m.role === 'assistant');
+    sessions.unshift({
+      id: Date.now(),
+      date: new Date().toISOString(),
+      messages: history.slice(),
+      preview: lastMsg ? lastMsg.content.slice(0, 80) : ''
     });
+    saveSessions(sessions);
+  }
+
+  function formatSessionDate(iso) {
+    const d = new Date(iso);
+    const now = new Date();
+    const diff = now - d;
+    if (diff < 86400000) return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    if (diff < 604800000) return d.toLocaleDateString([], {weekday:'short'});
+    return d.toLocaleDateString([], {month:'short', day:'numeric'});
+  }
+
+  function renderSessionsList() {
+    const list = document.getElementById('sessions-list');
+    const sessions = loadSessions();
+    if (!sessions.length) {
+      list.innerHTML = '<div class="sessions-empty">No saved chats yet</div>';
+      return;
+    }
+    list.innerHTML = sessions.map((s, i) => `
+      <div class="session-item" data-idx="${i}">
+        <img class="session-avatar" src="/avatar.jpeg"/>
+        <div class="session-info">
+          <div class="session-name">thornlust</div>
+          <div class="session-preview">${s.preview.replace(/</g,'&lt;')}</div>
+        </div>
+        <span class="session-date">${formatSessionDate(s.date)}</span>
+        <span class="session-delete" data-idx="${i}">&times;</span>
+      </div>
+    `).join('');
+
+    list.querySelectorAll('.session-item').forEach(el => {
+      el.addEventListener('click', e => {
+        if (e.target.closest('.session-delete')) return;
+        const s = loadSessions()[+el.dataset.idx];
+        if (!s) return;
+        closeSessionsScreen();
+        loadSessionChat(s);
+      });
+    });
+
+    list.querySelectorAll('.session-delete').forEach(el => {
+      el.addEventListener('click', e => {
+        e.stopPropagation();
+        const sessions = loadSessions();
+        sessions.splice(+el.dataset.idx, 1);
+        saveSessions(sessions);
+        renderSessionsList();
+      });
+    });
+  }
+
+  function loadSessionChat(session) {
+    history = session.messages.slice();
+    sessionMsgs = [];
+    lastSender = null;
+    messagesEl.innerHTML = '';
+    // rebuild the profile card
+    const card = document.createElement('div');
+    card.className = 'profile-card'; card.id = 'profile-card';
+    card.innerHTML = `<div class="profile-card-avatar-wrap"><img class="profile-card-avatar" src="/avatar.jpeg" alt="thornlust"/><div class="profile-card-dot"></div></div><div class="profile-card-name">thornlust</div><div class="profile-card-meta">20K followers · 37 posts<br>You don't follow each other on Instagram</div><button class="profile-card-btn" onclick="document.getElementById('profile-screen').classList.add('open')">View profile</button>`;
+    messagesEl.appendChild(card);
+    // re-render messages using the real appendMessage function
+    history.forEach(m => appendMessage(m.role, m.content));
+    // sync server history so the AI has full context
+    fetch('/save', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({messages: history}) });
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  const sessionsScreen = document.getElementById('sessions-screen');
+
+  function openSessionsScreen() {
+    renderSessionsList();
+    sessionsScreen.classList.add('open');
+  }
+  function closeSessionsScreen() {
+    sessionsScreen.classList.remove('open');
+  }
+
+  document.getElementById('sessions-btn').addEventListener('click', openSessionsScreen);
+  document.getElementById('sessions-back-btn').addEventListener('click', closeSessionsScreen);
+  addSwipeBack(sessionsScreen, closeSessionsScreen);
+
+  // ── New session ──
+  function startNewSession() {
+    if (!history.length) return;
+    saveCurrentSession();
+    fetch('/save', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({messages:[]}) });
     history = [];
     sessionMsgs = [];
     lastSender = null;
     messagesEl.innerHTML = '';
     const card = document.createElement('div');
-    card.className = 'profile-card';
-    card.id = 'profile-card';
-    card.innerHTML = `
-      <div class="profile-card-avatar-wrap">
-        <img class="profile-card-avatar" src="/avatar.jpeg" alt="thornlust" />
-        <div class="profile-card-dot"></div>
-      </div>
-      <div class="profile-card-name">thornlust</div>
-      <div class="profile-card-meta">20K followers · 37 posts<br>You don't follow each other on Instagram</div>
-      <button class="profile-card-btn" onclick="document.getElementById('profile-screen').classList.add('open')">View profile</button>`;
+    card.className = 'profile-card'; card.id = 'profile-card';
+    card.innerHTML = `<div class="profile-card-avatar-wrap"><img class="profile-card-avatar" src="/avatar.jpeg" alt="thornlust"/><div class="profile-card-dot"></div></div><div class="profile-card-name">thornlust</div><div class="profile-card-meta">20K followers · 37 posts<br>You don't follow each other on Instagram</div><button class="profile-card-btn" onclick="document.getElementById('profile-screen').classList.add('open')">View profile</button>`;
     messagesEl.appendChild(card);
+  }
+
+  document.getElementById('new-session-btn').addEventListener('click', () => {
+    if (!history.length) return;
+    if (!confirm('Start a new chat? Current chat will be saved.')) return;
+    startNewSession();
   });
+
+  // swipe left on chat = auto-save and start new session seamlessly
+  let _cx0 = 0, _cy0 = 0;
+  messagesEl.addEventListener('touchstart', e => {
+    _cx0 = e.touches[0].clientX;
+    _cy0 = e.touches[0].clientY;
+  }, { passive: true });
+  messagesEl.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - _cx0;
+    const dy = e.changedTouches[0].clientY - _cy0;
+    if (dx > 80 && Math.abs(dy) < Math.abs(dx) * 0.5) startNewSession();
+  }, { passive: true });
 
   // ── POST VIEWER ──
   const postViewer = document.getElementById('post-viewer');
@@ -1373,6 +1614,81 @@
       if (dx > 60 && Math.abs(dy) < Math.abs(dx) * 0.6) onClose();
     }, { passive: true });
   }
+
+  // ── STORY VIEWER ──
+  const HIGHLIGHTS = [
+    { images: ['/IMG_1975.jpeg', '/IMG_1959.jpeg', '/IMG_1963.jpeg', '/IMG_1976.jpeg'] },
+    { images: ['/IMG_1962.jpeg', '/IMG_1967.jpeg', '/IMG_1973.jpeg', '/IMG_1991.jpeg'] },
+    { images: ['/IMG_1965.jpeg', '/IMG_1966.jpeg', '/IMG_1993.jpeg', '/IMG_1996.jpeg'] },
+    { images: ['/IMG_1972.jpeg', '/IMG_1974.jpeg', '/IMG_1978.jpeg', '/IMG_1982.jpeg'] },
+    { images: ['/IMG_1980.jpeg', '/IMG_1981.jpeg', '/IMG_1983.jpeg', '/IMG_1986.jpeg'] },
+  ];
+
+  const storyViewer = document.getElementById('story-viewer');
+  const storyImg    = document.getElementById('story-image');
+  const storyProg   = document.getElementById('story-progress-row');
+  let storyHL = null, storySlide = 0, storyTimer = null;
+  const STORY_DUR = 5000;
+
+  function openHighlight(idx) {
+    storyHL    = HIGHLIGHTS[idx];
+    storySlide = 0;
+    storyViewer.classList.add('open');
+    showSlide();
+  }
+
+  function showSlide() {
+    clearTimeout(storyTimer);
+    storyImg.src = storyHL.images[storySlide];
+    const n = storyHL.images.length;
+    storyProg.innerHTML = Array.from({length: n}, (_, i) =>
+      `<div class="story-progress-bar"><div class="story-progress-fill${i < storySlide ? ' done' : ''}" id="spf${i}"></div></div>`
+    ).join('');
+    const fill = document.getElementById(`spf${storySlide}`);
+    if (fill) {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        fill.style.transition = `width ${STORY_DUR}ms linear`;
+        fill.style.width = '100%';
+      }));
+    }
+    storyTimer = setTimeout(nextSlide, STORY_DUR);
+  }
+
+  function nextSlide() {
+    clearTimeout(storyTimer);
+    if (storySlide < storyHL.images.length - 1) { storySlide++; showSlide(); }
+    else closeStory();
+  }
+
+  function prevSlide() {
+    clearTimeout(storyTimer);
+    if (storySlide > 0) { storySlide--; showSlide(); }
+  }
+
+  function closeStory() {
+    clearTimeout(storyTimer);
+    storyViewer.classList.remove('open');
+  }
+
+  document.getElementById('story-close').addEventListener('click', closeStory);
+  document.getElementById('story-tap-left').addEventListener('click', prevSlide);
+  document.getElementById('story-tap-right').addEventListener('click', nextSlide);
+
+  // swipe down to close (Instagram style)
+  let _sy0 = 0, _sx0 = 0;
+  storyViewer.addEventListener('touchstart', e => {
+    _sy0 = e.touches[0].clientY;
+    _sx0 = e.touches[0].clientX;
+  }, { passive: true });
+  storyViewer.addEventListener('touchend', e => {
+    const dy = e.changedTouches[0].clientY - _sy0;
+    const dx = e.changedTouches[0].clientX - _sx0;
+    if (dy > 70 && Math.abs(dx) < Math.abs(dy) * 0.6) closeStory();
+  }, { passive: true });
+
+  document.querySelectorAll('.profile-highlight').forEach((el, i) => {
+    el.addEventListener('click', () => openHighlight(i));
+  });
 
   // ── PROFILE SCREEN ──
   const profileScreen = document.getElementById('profile-screen');
