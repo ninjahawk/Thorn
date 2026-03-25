@@ -110,7 +110,8 @@ def summarize_in_background(messages_to_summarize):
         payload = json.dumps({
             "model": MODEL,
             "messages": [{"role": "user", "content": prompt}],
-            "stream": False
+            "stream": False,
+            "options": {"temperature": 0.4}
         }).encode()
         req = urllib.request.Request(
             "http://localhost:11434/api/chat",
@@ -235,7 +236,8 @@ class Handler(BaseHTTPRequestHandler):
         payload = json.dumps({
             "model": MODEL,
             "messages": ollama_messages,
-            "stream": True
+            "stream": True,
+            "options": {"temperature": 0.92, "top_p": 0.9}
         }).encode()
 
         self.send_response(200)
