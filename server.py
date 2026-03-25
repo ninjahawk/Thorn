@@ -132,6 +132,14 @@ def summarize_in_background(messages_to_summarize):
         print(f"[memory] summarize failed: {e}", flush=True)
 
 
+STYLE_REMINDER = (
+    "[style reminder: short replies only. always lowercase i. "
+    "no filler phrases. no paragraphs. match the length of his message. "
+    "never say 'that's good to hear' or 'hey there' or 'sounds like'. "
+    "one thought per reply.]"
+)
+REMINDER_INTERVAL = 8  # inject a reminder every N user messages
+
 def build_ollama_messages(all_messages, length_instruction=None, mode='flirty'):
     """Return system context + trimmed message list for Ollama."""
     memory = load_memory()
@@ -142,7 +150,19 @@ def build_ollama_messages(all_messages, length_instruction=None, mode='flirty'):
         system += f"\n\nRESPONSE LENGTH RULE (overrides all other length rules): {length_instruction}"
 
     recent = all_messages[-RECENT_WINDOW:] if len(all_messages) > RECENT_WINDOW else all_messages
-    return [{"role": "system", "content": system}] + recent
+
+    # Inject a brief style reminder every N user messages so it stays near
+    # the top of the model's attention as history grows
+    result = [{"role": "system", "content": system}]
+    user_count = 0
+    for msg in recent:
+        if msg["role"] == "user":
+            user_count += 1
+            if user_count % REMINDER_INTERVAL == 0:
+                result.append({"role": "user", "content": STYLE_REMINDER})
+                result.append({"role": "assistant", "content": "got it"})
+        result.append(msg)
+    return result
 
 
 class Handler(BaseHTTPRequestHandler):
