@@ -512,46 +512,42 @@
       opacity: 0; pointer-events: none;
       transform-origin: center center;
       will-change: transform, opacity;
-      overflow-y: auto;
+      overflow: hidden;
     }
     .post-viewer.open { pointer-events: auto; }
 
-    /* top nav bar: back | centered "Posts / thornlust" | spacer */
+    /* sticky top nav */
     .post-viewer-topbar {
       display: flex; align-items: center;
       padding: 8px 14px;
       padding-top: calc(8px + env(safe-area-inset-top));
-      flex-shrink: 0;
+      flex-shrink: 0; background: #000; z-index: 1;
     }
     .post-viewer-back { color: #fff; cursor: pointer; padding: 4px 8px 4px 0; display: flex; align-items: center; }
-    .post-viewer-title {
-      flex: 1; display: flex; flex-direction: column; align-items: center;
-    }
+    .post-viewer-title { flex: 1; display: flex; flex-direction: column; align-items: center; }
     .post-viewer-title-main { font-size: 17px; font-weight: 700; color: #fff; line-height: 1.2; }
     .post-viewer-title-sub { font-size: 13px; color: #aaa; line-height: 1.2; }
     .post-viewer-topbar-spacer { width: 28px; flex-shrink: 0; }
 
-    /* user row below topbar */
+    /* scrollable feed */
+    .post-feed { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .post-feed-item { border-bottom: 8px solid #111; }
+    .post-feed-item:last-child { border-bottom: none; padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+
+    /* per-post user row */
     .post-viewer-userrow {
       display: flex; align-items: center; gap: 10px;
-      padding: 8px 14px; flex-shrink: 0;
+      padding: 8px 14px;
     }
     .post-viewer-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
     .post-viewer-name { font-size: 15px; font-weight: 700; flex: 1; color: #fff; }
     .post-viewer-more { color: #fff; cursor: pointer; padding: 4px; display: flex; align-items: center; }
 
     /* image: full width, natural height */
-    .post-viewer-image {
-      width: 100%; flex-shrink: 0;
-    }
-    .post-viewer-image img {
-      width: 100%; height: auto; display: block;
-    }
+    .post-viewer-image { width: 100%; }
+    .post-viewer-image img { width: 100%; height: auto; display: block; }
 
-    .post-viewer-actions {
-      flex-shrink: 0; padding: 10px 14px;
-      padding-bottom: calc(10px + env(safe-area-inset-bottom));
-    }
+    .post-viewer-actions { padding: 10px 14px 14px; }
     .post-viewer-icons { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
     .post-viewer-icon { color: #fff; cursor: pointer; display: flex; align-items: center; }
     .post-viewer-icon.save { margin-left: auto; }
@@ -559,13 +555,6 @@
     .post-viewer-caption { font-size: 15px; color: #fff; margin-bottom: 4px; }
     .post-viewer-caption strong { font-weight: 700; margin-right: 5px; }
     .post-viewer-timestamp { font-size: 13px; color: #777; margin-bottom: 12px; }
-    .post-viewer-commenter {
-      display: flex; align-items: center; gap: 10px;
-      padding-top: 10px; border-top: 1px solid #1a1a1a;
-    }
-    .post-viewer-commenter-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
-    .post-viewer-commenter-name { font-size: 15px; font-weight: 700; flex: 1; color: #fff; }
-    .post-viewer-commenter-more { color: #fff; cursor: pointer; padding: 4px; display: flex; align-items: center; }
   </style>
 </head>
 <body>
@@ -708,7 +697,6 @@
 
 <!-- POST VIEWER -->
 <div class="post-viewer" id="post-viewer">
-  <!-- top nav -->
   <div class="post-viewer-topbar">
     <span class="post-viewer-back" id="post-viewer-back">
       <svg width="12" height="21" viewBox="0 0 12 21" fill="none">
@@ -721,73 +709,7 @@
     </div>
     <span class="post-viewer-topbar-spacer"></span>
   </div>
-  <!-- user row -->
-  <div class="post-viewer-userrow">
-    <img class="post-viewer-avatar" src="/avatar.jpeg"/>
-    <span class="post-viewer-name">thornlust</span>
-    <span class="post-viewer-more">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="5" r="1.5" fill="white"/><circle cx="12" cy="12" r="1.5" fill="white"/><circle cx="12" cy="19" r="1.5" fill="white"/>
-      </svg>
-    </span>
-  </div>
-  <!-- image -->
-  <div class="post-viewer-image">
-    <img id="post-viewer-img" src="" alt=""/>
-  </div>
-  <!-- actions + caption -->
-  <div class="post-viewer-actions">
-    <div class="post-viewer-icons">
-      <!-- heart -->
-      <span class="post-viewer-icon">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-          <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-      <span class="post-viewer-count">41</span>
-      <!-- comment -->
-      <span class="post-viewer-icon">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-      <span class="post-viewer-count">7</span>
-      <!-- repost -->
-      <span class="post-viewer-icon">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-          <polyline points="17 1 21 5 17 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          <path d="M3 11V9a4 4 0 014-4h14" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <polyline points="7 23 3 19 7 15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          <path d="M21 13v2a4 4 0 01-4 4H3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-      <!-- share / paper plane -->
-      <span class="post-viewer-icon">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-          <line x1="22" y1="2" x2="11" y2="13" stroke="white" stroke-width="2" stroke-linecap="round"/>
-          <polygon points="22 2 15 22 11 13 2 9 22 2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        </svg>
-      </span>
-      <!-- bookmark right-aligned -->
-      <span class="post-viewer-icon save">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-          <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-    </div>
-    <div class="post-viewer-caption"><strong>thornlust</strong><span id="post-viewer-caption-text">just vibing</span></div>
-    <div class="post-viewer-timestamp">7 hours ago</div>
-    <!-- commenter row -->
-    <div class="post-viewer-commenter">
-      <img class="post-viewer-commenter-avatar" src="/avatar.jpeg"/>
-      <span class="post-viewer-commenter-name">thornlust</span>
-      <span class="post-viewer-commenter-more">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="5" r="1.5" fill="white"/><circle cx="12" cy="12" r="1.5" fill="white"/><circle cx="12" cy="19" r="1.5" fill="white"/>
-        </svg>
-      </span>
-    </div>
-  </div>
+  <div class="post-feed" id="post-feed"></div>
 </div>
 
 <!-- PROFILE SCREEN -->
@@ -1243,27 +1165,78 @@
   });
 
   // ── POST VIEWER ──
-  const postViewer    = document.getElementById('post-viewer');
-  const postViewerImg = document.getElementById('post-viewer-img');
-  let lastPostRect    = null;
+  const postViewer = document.getElementById('post-viewer');
+  const postFeed   = document.getElementById('post-feed');
+  let lastPostRect = null;
+  let feedBuilt    = false;
+
+  function randBetween(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  function fmtCount(n) {
+    return n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : n;
+  }
+
+  const ICON_HEART = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const ICON_COMMENT = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const ICON_REPOST = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><polyline points="17 1 21 5 17 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M3 11V9a4 4 0 014-4h14" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="7 23 3 19 7 15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M21 13v2a4 4 0 01-4 4H3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const ICON_SHARE = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><line x1="22" y1="2" x2="11" y2="13" stroke="white" stroke-width="2" stroke-linecap="round"/><polygon points="22 2 15 22 11 13 2 9 22 2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`;
+  const ICON_SAVE = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const ICON_MORE = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.5" fill="white"/><circle cx="12" cy="12" r="1.5" fill="white"/><circle cx="12" cy="19" r="1.5" fill="white"/></svg>`;
+
+  function buildFeed() {
+    if (feedBuilt) return;
+    feedBuilt = true;
+    const posts = Array.from(document.querySelectorAll('.profile-post img'));
+    postFeed.innerHTML = posts.map((img, i) => {
+      const likes    = randBetween(5000, 80000);
+      const comments = randBetween(100, 5000);
+      return `<div class="post-feed-item" id="post-feed-item-${i}">
+        <div class="post-viewer-userrow">
+          <img class="post-viewer-avatar" src="/avatar.jpeg"/>
+          <span class="post-viewer-name">thornlust</span>
+          <span class="post-viewer-more">${ICON_MORE}</span>
+        </div>
+        <div class="post-viewer-image"><img src="${img.src}" alt=""/></div>
+        <div class="post-viewer-actions">
+          <div class="post-viewer-icons">
+            <span class="post-viewer-icon">${ICON_HEART}</span>
+            <span class="post-viewer-count">${fmtCount(likes)}</span>
+            <span class="post-viewer-icon">${ICON_COMMENT}</span>
+            <span class="post-viewer-count">${fmtCount(comments)}</span>
+            <span class="post-viewer-icon">${ICON_REPOST}</span>
+            <span class="post-viewer-icon">${ICON_SHARE}</span>
+            <span class="post-viewer-icon save">${ICON_SAVE}</span>
+          </div>
+          <div class="post-viewer-caption"><strong>thornlust</strong>just vibing</div>
+          <div class="post-viewer-timestamp">7 hours ago</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
 
   function openPost(post) {
-    const rect = post.getBoundingClientRect();
+    const posts = Array.from(document.querySelectorAll('.profile-post'));
+    const idx   = posts.indexOf(post);
+    const rect  = post.getBoundingClientRect();
     lastPostRect = rect;
+
+    buildFeed();
+
+    // Scroll feed to the tapped post before animating
+    const feedItem = document.getElementById(`post-feed-item-${idx}`);
+    if (feedItem) postFeed.scrollTop = feedItem.offsetTop - postFeed.offsetTop;
+
     const vw = window.innerWidth, vh = window.innerHeight;
     const sx = rect.width / vw, sy = rect.height / vh;
     const tx = (rect.left + rect.width / 2) - vw / 2;
     const ty = (rect.top  + rect.height / 2) - vh / 2;
 
-    postViewerImg.src = post.querySelector('img').src;
     postViewer.classList.add('open');
-
-    // Start at thumbnail size/position
     postViewer.style.transition = 'none';
     postViewer.style.transform  = `translate(${tx}px, ${ty}px) scale(${sx}, ${sy})`;
     postViewer.style.opacity    = '0.7';
 
-    // Animate to full screen
     requestAnimationFrame(() => requestAnimationFrame(() => {
       postViewer.style.transition = 'transform 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.22s ease';
       postViewer.style.transform  = 'none';
