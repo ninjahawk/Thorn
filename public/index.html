@@ -39,8 +39,11 @@
       border-bottom: 1px solid #1a1a1a;
       background: #000;
       gap: 10px;
-      flex-shrink: 0;
       z-index: 10;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      max-width: 480px;
+      margin: 0 auto;
     }
 
     .back-btn { color: #fff; cursor: pointer; padding: 4px; display: flex; align-items: center; }
@@ -98,6 +101,7 @@
       flex: 1; min-height: 0;
       overflow-y: auto; overflow-x: hidden;
       padding: 8px 12px;
+      padding-top: calc(59px + env(safe-area-inset-top));
       display: flex; flex-direction: column;
       justify-content: flex-end;
       gap: 3px;
@@ -611,13 +615,13 @@
   const lengthSlider = document.getElementById('length-slider');
   const lengthDesc   = document.getElementById('length-desc');
   const lengthLevels = [
-    { desc: '1 sentence max', instruction: 'RESPOND IN ONE SENTENCE ONLY. Absolutely no more.' },
-    { desc: '1-2 sentences',  instruction: 'Keep your response to 1-2 short sentences max.' },
-    { desc: '3-4 sentences',  instruction: 'You can write 3-4 sentences if the topic calls for it.' },
-    { desc: '5-6 sentences',  instruction: 'Feel free to write 5-6 sentences and be more expressive.' },
-    { desc: 'go off',         instruction: 'Write as much as you want. Be detailed, expressive, go off.' },
+    { desc: 'one line',    instruction: 'RESPOND IN ONE SENTENCE ONLY. Absolutely no more.' },
+    { desc: 'short',       instruction: 'Keep it short -- 1-2 sentences max.' },
+    { desc: 'natural',     instruction: 'Respond naturally -- vary your length based on context, like a real human texter would.' },
+    { desc: 'expressive',  instruction: 'Feel free to write more -- be expressive and detailed if the topic calls for it.' },
+    { desc: 'go off',      instruction: 'Write as much as you want. Be detailed, expressive, go off.' },
   ];
-  let currentLength = 1;
+  let currentLength = 2;
 
   function updateLengthUI(val) {
     currentLength = val;
