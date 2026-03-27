@@ -1,0 +1,8 @@
+venv/
+outputs/
+unsloth_compiled_cache/
+_unsloth_sentencepiece_temp
+=*/
+=*
+*.pyc
+__pycache__/
