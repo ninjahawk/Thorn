@@ -983,6 +983,13 @@
     <input id="settings-url" type="url" placeholder="https://your-tunnel.trycloudflare.com"
       style="width:100%;background:#1e1e1e;border:1.5px solid #2a2a2a;border-radius:10px;padding:12px 14px;color:#fff;font-size:15px;outline:none;box-sizing:border-box;" />
   </div>
+  <div style="margin-bottom:12px;">
+    <label style="font-size:14px;color:#888;display:block;margin-bottom:6px;">Model</label>
+    <select id="settings-model"
+      style="width:100%;background:#1e1e1e;border:1.5px solid #2a2a2a;border-radius:10px;padding:12px 14px;color:#fff;font-size:15px;outline:none;box-sizing:border-box;-webkit-appearance:none;">
+      <option value="">Connect first to load models...</option>
+    </select>
+  </div>
   <div id="settings-status" style="font-size:13px;color:#555;text-align:center;margin-bottom:14px;min-height:18px;"></div>
   <button id="settings-save-btn" style="width:100%;padding:13px;background:linear-gradient(135deg,#a855f7,#6366f1);border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;">Save</button>
 </div>
@@ -1019,7 +1026,7 @@
   // ── CONFIG ──
   // Set this to your Cloudflare Tunnel URL (or localhost for local dev)
   const OLLAMA_URL = localStorage.getItem('thorn_ollama_url') || 'http://localhost:11434';
-  const MODEL = 'dolphin3';
+  const MODEL = localStorage.getItem('thorn_model') || '';
 
   const PERSONALITY_FLIRTY = `NEVER use emojis. Always write "i" lowercase. Never break character. Never end a sentence with a period.
 
@@ -1146,17 +1153,38 @@ REMINDER: Do NOT use any emojis whatsoever. Plain text only.`;
   document.querySelector('.header-name').addEventListener('pointerup', () => clearTimeout(_longPress));
   document.querySelector('.header-name').addEventListener('pointerleave', () => clearTimeout(_longPress));
 
+  const settingsModel = document.getElementById('settings-model');
+
+  async function loadModels(url) {
+    try {
+      const res = await fetch(url + '/api/tags', { signal: AbortSignal.timeout(5000) });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      const models = (data.models || []).map(m => m.name);
+      settingsModel.innerHTML = models.length
+        ? models.map(m => `<option value="${m}"${m === MODEL ? ' selected' : ''}>${m}</option>`).join('')
+        : '<option value="">No models found</option>';
+      return true;
+    } catch { return false; }
+  }
+
+  loadModels(OLLAMA_URL);
+
+  settingsUrl.addEventListener('change', () => loadModels(settingsUrl.value.trim().replace(/\/+$/, '')));
+
   document.getElementById('settings-save-btn').addEventListener('click', async () => {
     let url = settingsUrl.value.trim().replace(/\/+$/, '');
     if (!url) { settingsStatus.textContent = 'enter a URL'; settingsStatus.style.color = '#f44'; return; }
+    const model = settingsModel.value;
+    if (!model) { settingsStatus.textContent = 'pick a model'; settingsStatus.style.color = '#f44'; return; }
     settingsStatus.textContent = 'testing connection...'; settingsStatus.style.color = '#888';
-    try {
-      const res = await fetch(url + '/api/tags', { signal: AbortSignal.timeout(5000) });
-      if (!res.ok) throw new Error('bad response');
+    const ok = await loadModels(url);
+    if (ok) {
       localStorage.setItem('thorn_ollama_url', url);
-      settingsStatus.textContent = 'connected'; settingsStatus.style.color = '#22c55e';
+      localStorage.setItem('thorn_model', model);
+      settingsStatus.textContent = 'saved'; settingsStatus.style.color = '#22c55e';
       setTimeout(() => { closeAllPanels(); location.reload(); }, 800);
-    } catch (e) {
+    } else {
       settingsStatus.textContent = 'cant reach ollama at that URL'; settingsStatus.style.color = '#f44';
     }
   });
@@ -1372,6 +1400,7 @@ REMINDER: Do NOT use any emojis whatsoever. Plain text only.`;
 
   // ── Call Ollama directly ──
   async function callOllama(msgs) {
+    if (!MODEL) throw new Error('no model configured');
     const res = await fetch(OLLAMA_URL + '/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
