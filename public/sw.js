@@ -1,10 +1,10 @@
 const CACHE_NAME = 'thorn-v2';
 const PRECACHE = [
-  '/',
-  '/index.html',
-  '/avatar.jpeg',
-  '/appicon.png',
-  '/manifest.json'
+  './',
+  './index.html',
+  './avatar.jpeg',
+  './appicon.png',
+  './manifest.json'
 ];
 
 self.addEventListener('install', (e) => {
