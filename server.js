@@ -87,7 +87,7 @@ app.post('/chat', async (req, res) => {
   ollamaReq.end();
 });
 
-const PORT = 3000;
+const PORT = parseInt(process.env.PORT || 3001);
 app.listen(PORT, () => {
   console.log(`\n✓ Emmi chat running at http://localhost:${PORT}\n`);
 });

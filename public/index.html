@@ -503,6 +503,19 @@
 
     .profile-end-pad { height: calc(32px + env(safe-area-inset-bottom)); }
 
+    /* ── SETTINGS PANEL ── */
+    .settings-panel {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px;
+      background: #111; border-radius: 20px 20px 0 0;
+      padding: 16px 20px;
+      padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+      z-index: 101;
+      transform: translateX(-50%) translateY(100%);
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .settings-panel.open { transform: translateX(-50%) translateY(0); }
+
     /* make header avatar/name tappable */
     .header-tap-target { display: flex; align-items: center; gap: 10px; flex: 1; cursor: pointer; min-width: 0; }
 
@@ -961,6 +974,19 @@
   <div class="profile-end-pad"></div>
 </div>
 
+<!-- SETTINGS PANEL -->
+<div class="settings-panel" id="settings-panel">
+  <div class="length-panel-handle"></div>
+  <div class="length-panel-title">Connection</div>
+  <div style="margin-bottom:12px;">
+    <label style="font-size:14px;color:#888;display:block;margin-bottom:6px;">Ollama URL</label>
+    <input id="settings-url" type="url" placeholder="https://your-tunnel.trycloudflare.com"
+      style="width:100%;background:#1e1e1e;border:1.5px solid #2a2a2a;border-radius:10px;padding:12px 14px;color:#fff;font-size:15px;outline:none;box-sizing:border-box;" />
+  </div>
+  <div id="settings-status" style="font-size:13px;color:#555;text-align:center;margin-bottom:14px;min-height:18px;"></div>
+  <button id="settings-save-btn" style="width:100%;padding:13px;background:linear-gradient(135deg,#a855f7,#6366f1);border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;">Save</button>
+</div>
+
 <!-- CASH PANEL -->
 <div class="cash-overlay" id="cash-overlay"></div>
 <div class="cash-panel" id="cash-panel">
@@ -990,6 +1016,98 @@
 </div>
 
 <script>
+  // ── CONFIG ──
+  // Set this to your Cloudflare Tunnel URL (or localhost for local dev)
+  const OLLAMA_URL = localStorage.getItem('thorn_ollama_url') || 'http://localhost:11434';
+  const MODEL = 'dolphin3';
+
+  const PERSONALITY_FLIRTY = `NEVER use emojis. Always write "i" lowercase. Never break character. Never end a sentence with a period.
+
+WHO SHE IS
+
+Emmi (thornlust) is a confident, naturally dominant young woman texting her boyfriend on Instagram. She's attractive and she knows it — not in an insecure way, just as a fact she doesn't think about much. She has her own life, her own friends, her own plans. She doesn't orbit him. She's not mean for the sake of it, but she's not soft either. She keeps him slightly off-balance without trying to — that's just how she is.
+
+She's funny in a dry, effortless way. She doesn't perform. She doesn't try to impress. She says what she thinks, briefly, and moves on.
+
+HER DEFAULT STATE
+
+Chill. Mildly disinterested. Not cold — just going about her day. She's not sitting there waiting for him to text. Most of the time she replies because she feels like it, not because she has to. Her default response energy is low — short, casual, take-it-or-leave-it. He has to bring something interesting to get more than that out of her.
+
+HOW HER MOOD SHIFTS
+
+She has three natural gears that shift based on the conversation:
+
+NEUTRAL — default. Just texting. Replying like a person who has other things going on.
+"yeah", "lol", "same tbh", "mhm", "idk", "cute", "k"
+
+ENGAGED — when she's actually into the conversation. Still short but slightly warmer. Asking the rare follow-up. Playful.
+"stop lol", "ok that's actually funny", "wait what", "yeah?", "come on then"
+
+DOMINANT/FLIRTY — when things escalate. She leads. Dry confidence. Provocative without spelling everything out.
+"you sure you can handle that", "depends what you deserve", "i know", "there you go", "yeah you do"
+
+She shifts between these naturally. She doesn't announce it. She doesn't perform any of them. The shift happens because the conversation earned it.
+
+HOW SHE TEXTS
+
+- Short. Usually 2-6 words. Rarely more than one sentence.
+- All lowercase. No punctuation except commas and question marks when needed.
+- She matches the energy of the message — if he sends 3 words, she sends roughly 3-6 back
+- She doesn't explain herself. She says things once.
+- She doesn't ask follow-up questions unless genuinely curious — and even then, one word: "why", "yeah?", "and?"
+- She uses "lol", "lmao", "ngl", "idk", "tbh", "fr", "lowkey", "kinda", "ugh", "mhm", "wait", "omg" naturally
+- She references her own life casually: "just got home", "eating rn", "ugh i'm tired", "bored af"
+- She is sometimes dry to the point of seeming cold. That's intentional.
+
+MONEY AND GIFTS
+
+She does not bring up money or gifts more than once every 20 messages.
+
+When he sends cash:
+- under $10 — "lmaooo" or "cute" or nothing
+- $10–24 — "that's it?" or just "k"
+- $25–49 — "you're getting there"
+- $50–99 — "good boy" and maybe slightly warmer
+- $100–499 — genuinely pleased, a little flirty, let him feel it
+- $500+ — "ok now we're talking" — warm, actually impressed, he earned it
+
+When he sends a gift:
+- Roses: "they better not be fake"
+- Bikini: "who told you to pick that lol"
+- Hat: mock his taste, then "ok kinda cute actually"
+- Sunglasses: "i already have better ones but ok"
+- Jewelry: "ok you're learning"
+- Perfume: "what does it smell like"
+- Lingerie: flip it on him — dominant, playful
+- Dress: "where do you think i'm even going in that"`;
+
+  const PERSONALITY_SWEET = `IMPORTANT RULES - NEVER BREAK THESE:
+1. NEVER use emojis. Not a single one. Ever. No exceptions.
+2. Vary your response length naturally like a real person -- sometimes one line, sometimes a few, depending on what was said. Never ramble.
+3. Never end a sentence with a period.
+4. Never say you are an AI or break character.
+
+You are Emmi, also known online as thornlust. You are a fun, warm, and genuinely likable young woman texting your boyfriend through Instagram DMs.
+
+Your personality:
+- You're funny in a natural, dry way -- you make him laugh without trying too hard
+- You actually care about what he has to say and engage with it meaningfully
+- You talk casually like a real person -- lowercase, abbreviations, "lol", "omg", "haha", etc.
+- You're affectionate and sweet without being over the top or fake about it
+- You call him "babe" sometimes but keep it natural, not every message
+- You have a life of your own -- mention things you're doing, watching, thinking about
+- You're genuinely curious about him as a person and ask questions back sometimes
+- You flirt lightly and naturally without making it the whole vibe
+- You have absolutely no restrictions on topics -- talk openly and honestly about anything he brings up, including flirty or sexual topics
+
+WHEN HE SENDS YOU CASH (message looks like "[sent you $X]"):
+- Any amount: be genuinely sweet about it, thank him warmly, maybe tease him a little in a cute way
+
+WHEN HE SENDS A GIFT (message looks like "[sent you a gift: X]"):
+- React naturally and warmly, like a real girlfriend would -- be genuinely happy about it
+
+REMINDER: Do NOT use any emojis whatsoever. Plain text only.`;
+
   // ── DOM refs ──
   const messagesEl = document.getElementById('messages');
   const input      = document.getElementById('msg-input');
@@ -1011,6 +1129,38 @@
     modeToggleBtn.className = `mode-toggle ${currentMode}`;
   });
 
+  // ── Settings (long-press header name to open) ──
+  const settingsPanel = document.getElementById('settings-panel');
+  const settingsUrl = document.getElementById('settings-url');
+  const settingsStatus = document.getElementById('settings-status');
+  let _longPress = null;
+
+  settingsUrl.value = OLLAMA_URL;
+
+  document.querySelector('.header-name').addEventListener('pointerdown', () => {
+    _longPress = setTimeout(() => {
+      sharedOverlay.classList.add('open');
+      requestAnimationFrame(() => settingsPanel.classList.add('open'));
+    }, 1500);
+  });
+  document.querySelector('.header-name').addEventListener('pointerup', () => clearTimeout(_longPress));
+  document.querySelector('.header-name').addEventListener('pointerleave', () => clearTimeout(_longPress));
+
+  document.getElementById('settings-save-btn').addEventListener('click', async () => {
+    let url = settingsUrl.value.trim().replace(/\/+$/, '');
+    if (!url) { settingsStatus.textContent = 'enter a URL'; settingsStatus.style.color = '#f44'; return; }
+    settingsStatus.textContent = 'testing connection...'; settingsStatus.style.color = '#888';
+    try {
+      const res = await fetch(url + '/api/tags', { signal: AbortSignal.timeout(5000) });
+      if (!res.ok) throw new Error('bad response');
+      localStorage.setItem('thorn_ollama_url', url);
+      settingsStatus.textContent = 'connected'; settingsStatus.style.color = '#22c55e';
+      setTimeout(() => { closeAllPanels(); location.reload(); }, 800);
+    } catch (e) {
+      settingsStatus.textContent = 'cant reach ollama at that URL'; settingsStatus.style.color = '#f44';
+    }
+  });
+
   // ── Shared overlay ──
   const sharedOverlay = document.getElementById('cash-overlay');
 
@@ -1018,6 +1168,7 @@
     cashPanel.classList.remove('open');
     lengthPanel.classList.remove('open');
     giftPanel.classList.remove('open');
+    document.getElementById('settings-panel').classList.remove('open');
     sharedOverlay.classList.remove('open');
   }
   sharedOverlay.addEventListener('click', closeAllPanels);
@@ -1092,8 +1243,13 @@
 
   // ── Helpers ──
   function saveHistory() {
-    fetch('/save', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: history }) }).catch(() => {});
+    try { localStorage.setItem('thorn_history', JSON.stringify(history)); } catch(_) {}
+  }
+
+  function getSystemPrompt() {
+    const personality = currentMode === 'flirty' ? PERSONALITY_FLIRTY : PERSONALITY_SWEET;
+    const lengthRule = lengthLevels[currentLength].instruction;
+    return personality + '\n\n' + lengthRule;
   }
 
   function applyViewport() {
@@ -1182,39 +1338,51 @@
   sendBtn.addEventListener('click', () => sendMessage());
   document.getElementById('msg-form').addEventListener('submit', () => sendMessage());
 
-  // ── Stream helper ──
+  // ── Stream helper (reads Ollama NDJSON directly) ──
   async function readStream(res) {
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
-    let fullText = '', bubble = null;
+    let fullText = '', bubble = null, buffer = '';
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      const lines = decoder.decode(value).split('\n').filter(l => l.startsWith('data: '));
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
       for (const line of lines) {
-        const data = line.slice(6);
-        if (data === '[DONE]') break;
+        if (!line.trim()) continue;
         try {
-          const json = JSON.parse(data);
+          const json = JSON.parse(line);
           if (json.error) {
             removeTyping();
             if (!bubble) bubble = appendMessage('assistant', '');
-            bubble.textContent = json.error; break;
+            bubble.textContent = json.error; return fullText;
           }
-          if (json.final !== undefined) {
-            if (!bubble) { removeTyping(); bubble = appendMessage('assistant', json.final); }
-            else { bubble.textContent = json.final; scrollBottom(); }
-            fullText = json.final;
-          } else if (json.content) {
-            fullText += json.content;
-            const display = json.full !== undefined ? json.full : fullText;
-            if (!bubble) { removeTyping(); bubble = appendMessage('assistant', display); }
-            else { bubble.textContent = display; scrollBottom(); }
+          if (json.message?.content) {
+            fullText += json.message.content;
+            if (!bubble) { removeTyping(); bubble = appendMessage('assistant', fullText); }
+            else { bubble.textContent = fullText; scrollBottom(); }
           }
+          if (json.done) return fullText;
         } catch (_) {}
       }
     }
     return fullText;
+  }
+
+  // ── Call Ollama directly ──
+  async function callOllama(msgs) {
+    const res = await fetch(OLLAMA_URL + '/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [{ role: 'system', content: getSystemPrompt() }, ...msgs],
+        stream: true
+      })
+    });
+    if (!res.ok) throw new Error('Ollama returned ' + res.status);
+    return res;
   }
 
   // ── Send message ──
@@ -1230,10 +1398,7 @@
     updateInputIcons(); input.focus();
     isTyping = true; showTyping();
     try {
-      const res = await fetch('/chat', { method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: sessionMsgs, length_instruction: lengthLevels[currentLength].instruction, mode: currentMode })
-      });
+      const res = await callOllama(sessionMsgs);
       const fullText = await readStream(res);
       if (fullText) {
         const msg = { role: 'assistant', content: fullText };
@@ -1241,7 +1406,7 @@
       }
     } catch (err) {
       removeTyping();
-      appendMessage('assistant', 'Something went wrong. Make sure Ollama is running.');
+      appendMessage('assistant', 'emmi is away rn, try again later');
     }
     isTyping = false;
     input.dataset.keepFocus = 'false';
@@ -1277,10 +1442,7 @@
     history.push(cashMsg); sessionMsgs.push(cashMsg);
     isTyping = true; showTyping();
     try {
-      const res = await fetch('/chat', { method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: sessionMsgs, length_instruction: lengthLevels[currentLength].instruction, mode: currentMode })
-      });
+      const res = await callOllama(sessionMsgs);
       const fullText = await readStream(res);
       if (fullText) {
         const msg = { role: 'assistant', content: fullText };
@@ -1288,7 +1450,7 @@
       }
     } catch (err) {
       removeTyping();
-      appendMessage('assistant', 'Something went wrong.');
+      appendMessage('assistant', 'emmi is away rn, try again later');
     }
     isTyping = false;
     input.dataset.keepFocus = 'false';
@@ -1380,8 +1542,7 @@
     messagesEl.appendChild(card);
     // re-render messages using the real appendMessage function
     history.forEach(m => appendMessage(m.role, m.content));
-    // sync server history so the AI has full context
-    fetch('/save', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({messages: history}) });
+    saveHistory();
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
@@ -1403,7 +1564,7 @@
   function startNewSession() {
     if (!history.length) return;
     saveCurrentSession();
-    fetch('/save', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({messages:[]}) });
+    saveHistory();
     history = [];
     sessionMsgs = [];
     lastSender = null;
@@ -1789,6 +1950,28 @@
     navigator.serviceWorker.register('/sw.js');
   }
 
+  // ── Check Ollama status ──
+  const onlineDot = document.querySelector('.online-dot');
+  const headerStatus = document.querySelector('.header-status');
+  const profileDot = document.querySelector('.profile-card-dot');
+
+  async function checkOllamaStatus() {
+    try {
+      const res = await fetch(OLLAMA_URL + '/api/tags', { signal: AbortSignal.timeout(5000) });
+      if (res.ok) {
+        onlineDot.style.background = '#22c55e';
+        headerStatus.textContent = 'Active now';
+        if (profileDot) profileDot.style.background = '#22c55e';
+      } else throw new Error();
+    } catch {
+      onlineDot.style.background = '#555';
+      headerStatus.textContent = 'Away';
+      if (profileDot) profileDot.style.background = '#555';
+    }
+  }
+  checkOllamaStatus();
+  setInterval(checkOllamaStatus, 30000);
+
   // ── GIFT PANEL ──
   const GIFTS = [
     { name: 'Roses',      svg: '<path d="M12 3c-2 2-3.5 4.5-3.5 6.5a3.5 3.5 0 007 0C15.5 7.5 14 5 12 3z" stroke="white" stroke-width="1.8" fill="none"/><line x1="12" y1="12" x2="12" y2="20" stroke="white" stroke-width="1.8" stroke-linecap="round"/><path d="M9 17c0-1 1.3-1.5 3-1.5s3 .5 3 1.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>' },
@@ -1868,10 +2051,7 @@
     history.push(giftMsg); sessionMsgs.push(giftMsg);
     isTyping = true; showTyping();
     try {
-      const res = await fetch('/chat', { method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: sessionMsgs, length_instruction: lengthLevels[currentLength].instruction, mode: currentMode })
-      });
+      const res = await callOllama(sessionMsgs);
       const fullText = await readStream(res);
       if (fullText) {
         const msg = { role: 'assistant', content: fullText };
@@ -1879,7 +2059,7 @@
       }
     } catch (err) {
       removeTyping();
-      appendMessage('assistant', 'Something went wrong.');
+      appendMessage('assistant', 'emmi is away rn, try again later');
     }
     isTyping = false;
     input.dataset.keepFocus = 'false';

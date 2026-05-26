@@ -6,7 +6,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from datetime import datetime
 
-PORT = 3000
+PORT = 3001
 BASE_DIR = Path(__file__).parent
 PUBLIC_DIR = BASE_DIR / "public"
 HISTORY_FILE = BASE_DIR / "chat_history.json"
@@ -16,7 +16,7 @@ GF_PERSONALITY_FILE = BASE_DIR / "personality_gf.txt"
 SESSIONS_DIR = BASE_DIR / "sessions"
 SESSIONS_DIR.mkdir(exist_ok=True)
 
-MODEL = "nous-hermes2:34b"
+MODEL = "emmi"
 
 # How many recent messages to always include in full
 RECENT_WINDOW = 20
