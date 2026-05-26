@@ -1,5 +1,7 @@
 # Thorn
 
+**[Live Site](https://ninjahawk.github.io/Thorn/)**
+
 A local AI girlfriend chatbot with an Instagram DM-style interface. Runs entirely on your PC using Ollama — no cloud, no subscriptions, full privacy.
 
 ![Interface](public/appicon.png)
