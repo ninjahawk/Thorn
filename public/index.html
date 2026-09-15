@@ -1024,7 +1024,13 @@
 <script>
   // ── CONFIG ──
   const OLLAMA_URL = localStorage.getItem('thorn_ollama_url') || 'http://localhost:11434';
-  const MODEL = localStorage.getItem('thorn_model') || '';
+  const DEFAULT_MODEL = 'huihui_ai/Qwen3.8-abliterated:27b';
+  // Move existing browsers to the new model once; later settings changes still stick.
+  if (localStorage.getItem('thorn_model_migration_qwen38') !== 'done') {
+    localStorage.setItem('thorn_model', DEFAULT_MODEL);
+    localStorage.setItem('thorn_model_migration_qwen38', 'done');
+  }
+  const MODEL = localStorage.getItem('thorn_model') || DEFAULT_MODEL;
 
   const PERSONALITY_FLIRTY = `NEVER use emojis. Always write "i" lowercase. Never break character. Never end a sentence with a period.
 
