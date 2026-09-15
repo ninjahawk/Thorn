@@ -1411,7 +1411,8 @@ REMINDER: Do NOT use any emojis whatsoever. Plain text only.`;
       body: JSON.stringify({
         model: MODEL,
         messages: [{ role: 'system', content: getSystemPrompt() }, ...msgs],
-        stream: true
+        stream: true,
+        options: MODEL === DEFAULT_MODEL ? { num_ctx: 8192, num_gpu: 10, draft_num_predict: 0 } : undefined
       })
     });
     if (!res.ok) throw new Error('Ollama returned ' + res.status);
